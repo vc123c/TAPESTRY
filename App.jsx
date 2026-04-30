@@ -133,6 +133,30 @@ function eventMeta(event) {
   return pieces.join(" · ");
 }
 
+function asUpperList(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.map((item) => String(item).toUpperCase());
+  return [String(value).toUpperCase()];
+}
+
+function eventMatchesScope(event, { districtId, stateAbbr, includeNational = false } = {}) {
+  const districts = asUpperList(event?.affected_districts);
+  const states = asUpperList(event?.affected_states);
+  const district = districtId ? String(districtId).toUpperCase() : null;
+  const state = stateAbbr ? String(stateAbbr).toUpperCase() : district?.split("-")[0];
+  const isNational = Boolean(event?.is_national_signal) || (!districts.length && !states.length);
+  if (district && districts.includes(district)) return true;
+  if (state && states.includes(state)) return true;
+  return includeNational && isNational;
+}
+
+function scopedEventList(events, scope, limit = 7) {
+  const rows = events || [];
+  const local = rows.filter((event) => eventMatchesScope(event, scope));
+  if (local.length) return local.slice(0, limit);
+  return rows.filter((event) => eventMatchesScope(event, { ...scope, includeNational: true })).slice(0, limit);
+}
+
 function isVerifiedOfficeholder(name = "") {
   return /\([DR]\)/.test(name) && !/generic|proxy|pending|incumbent|challenger seat|open seat/i.test(name);
 }
@@ -382,12 +406,7 @@ function DistrictPanel({ state, district, detail, newsState, events, onMoreInfo 
   const incumbentStatus = live.incumbent_status_2026;
   const raceIntel = live.race_intelligence || {};
   const twoSeventy = live.twoseventy_context || raceIntel.twoseventy;
-  const activeEvents = (events || [])
-    .filter((event) => {
-      const affected = event.affected_districts || [];
-      return affected.includes(districtId) || affected.includes(state?.abbreviation) || affected.length === 0;
-    })
-    .slice(0, 3);
+  const activeEvents = scopedEventList(events, { districtId, stateAbbr: state?.abbreviation }, 3);
   const dRaised = fundraising.filter((f) => f.party === "D").reduce((sum, f) => sum + Number(f.total_receipts || 0), 0);
   const rRaised = fundraising.filter((f) => f.party === "R").reduce((sum, f) => sum + Number(f.total_receipts || 0), 0);
   const dName = fundraising.find((f) => f.party === "D")?.candidate_name || "D candidate";
@@ -528,6 +547,18 @@ function StateRaceList({ activeState, districts, roster, focusedDistrictId, onRa
 function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail, districtNews, districts, roster, focusedDistrictId, onRaceHover, onRaceLeave, onSelectDistrict, events, onEventPulse }) {
   const moves = (morningBrief?.top_moves || []).slice(0, 5);
   const newsCount = districtNews?.articles?.length || 0;
+  const districtId = activeDistrict?.liveDistrict?.district_id || activeDistrict?.districtLabel || null;
+  const districtFeedArticles = (districtNews?.articles || []).slice(0, 7);
+  const scopedFeed = activeDistrict
+    ? scopedEventList(events, { districtId, stateAbbr: activeState }, 7)
+    : activeState
+      ? scopedEventList(events, { stateAbbr: activeState }, 7)
+      : (events || []).slice(0, 7);
+  const emptyFeedText = activeDistrict
+    ? "No district-specific intelligence signals yet."
+    : activeState
+      ? "No state-specific intelligence signals yet."
+      : "Not yet available";
   const verifiedOfficeholder = activeDistrict && (Boolean(activeDistrict.liveDistrict?.incumbent_name) || isVerifiedOfficeholder(activeDistrict.incumbent));
   const candidates = districtDetail?.candidates_2026 || activeDistrict?.liveDistrict?.candidates_2026 || [];
   const majorChallengers = districtDetail?.major_challengers_2026 || activeDistrict?.liveDistrict?.major_challengers_2026 || candidates.filter((c) => !c.is_incumbent && c.is_major_challenger !== false && c.active_2026 !== false);
@@ -556,7 +587,15 @@ function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail,
         )
       ),
       h(Section, { title: "INTELLIGENCE FEED" },
-        (events || []).slice(0, 7).map((event) => {
+        activeDistrict ? (
+          districtFeedArticles.length ? districtFeedArticles.map((article, idx) =>
+            h("a", { className: "event-feed-row", key: article.url || `${article.headline}-${idx}`, href: article.url, target: "_blank", rel: "noreferrer", title: article.headline },
+              h("span", { className: "event-feed-type" }, article.source_type || "Local"),
+              h("b", null, article.headline),
+              h("small", null, [article.source_name, article.time_ago, (article.topic_tags || []).slice(0, 2).join(", ")].filter(Boolean).join(" - "))
+            )
+          ) : [h("p", { className: "muted", key: "none" }, "No district-specific news loaded yet.")]
+        ) : scopedFeed.map((event) => {
           const rowContent = [
             h("span", { className: "event-feed-type", key: "type" }, eventTypeLabel(event.event_type)),
             h("b", { key: "title" }, event.event_name),
@@ -565,7 +604,7 @@ function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail,
           return event.source_url
             ? h("a", { className: "event-feed-row", key: event.event_id, href: event.source_url, target: "_blank", rel: "noreferrer", title: event.event_name, onMouseEnter: () => onEventPulse?.(event) }, rowContent)
             : h("button", { className: "event-feed-row", key: event.event_id, onClick: () => onEventPulse?.(event), title: event.event_name }, rowContent);
-        }).concat((events || []).length ? [] : [h("p", { className: "muted", key: "none" }, "Not yet available")])
+        }).concat(scopedFeed.length ? [] : [h("p", { className: "muted", key: "none" }, emptyFeedText)])
       )
     ),
     h("div", null,

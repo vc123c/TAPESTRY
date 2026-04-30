@@ -2228,3 +2228,266 @@ Important deployment caveats:
 - Backend may take up to ~30 seconds on first request after Render spin-down.
 - After Render gives the real URL, update .env.production and Vercel
   environment variable VITE_API_URL to that URL.
+
+
+RENDER URL WIRING - 2026-04-30
+==============================
+
+User supplied live Render URL:
+- https://tapestry-2iyf.onrender.com
+
+Files updated:
+- .env.production
+- DEPLOY.md
+- dist/src/api.js regenerated via scripts/build_static.js
+- TAPESTRY_RECAP_FOR_CLAUDE.txt
+
+Frontend production API URL:
+- VITE_API_URL=https://tapestry-2iyf.onrender.com
+- dist/src/api.js now contains:
+  DEPLOY_API_URL = "https://tapestry-2iyf.onrender.com"
+
+Render live verification:
+- Network verification required escalation due sandbox socket restrictions.
+- https://tapestry-2iyf.onrender.com/ returned 404.
+- https://tapestry-2iyf.onrender.com/docs returned 404.
+- https://tapestry-2iyf.onrender.com/openapi.json returned 404.
+- https://tapestry-2iyf.onrender.com/api/chambers returned 404.
+- https://tapestry-2iyf.onrender.com/api/districts/AZ-06 returned 404.
+- https://tapestry-2iyf.onrender.com/api/morning-brief returned 404.
+
+Interpretation:
+- The Render service is reachable, but it is not currently running the
+  TAPESTRY FastAPI app.
+- Most likely Render root directory/start command is wrong, or the service
+  has not redeployed the latest backend package.
+
+Render settings to fix:
+- Root Directory: tapestry-backend
+- Build Command: pip install -r requirements_serve.txt
+- Start Command: uvicorn main:app --host 0.0.0.0 --port $PORT
+- Env vars:
+  DATABASE_PATH=./data/tapestry_demo.duckdb
+  ENVIRONMENT=production
+- Confirm tapestry-backend/data/tapestry_demo.duckdb is present in the
+  deployed repo, then run Manual Deploy -> Clear build cache & deploy.
+
+Vercel plugin status:
+- deploy_to_vercel was called again after frontend build was regenerated.
+- Plugin still returned guidance to run `vercel deploy` or use Git
+  integration; it did not perform a direct deployment from this workspace.
+
+
+VERCEL COMMAND-LINE HELPER - 2026-04-30
+=======================================
+
+User asked how to deploy the frontend to Vercel from command line.
+
+Files added/updated:
+- deploy_vercel.bat
+- DEPLOY.md
+- TAPESTRY_RECAP_FOR_CLAUDE.txt
+
+deploy_vercel.bat behavior:
+- Runs from the project root.
+- Verifies npm is available.
+- Runs npm install.
+- Sets VITE_API_URL=https://tapestry-2iyf.onrender.com.
+- Runs npm run build.
+- Installs Vercel CLI globally if missing:
+  npm install -g vercel
+- Runs:
+  vercel deploy --prod
+
+Notes:
+- The script will prompt the user to log into Vercel if needed.
+- If npm is missing, the script tells the user to install Node.js LTS from
+  https://nodejs.org, then reopen Command Prompt and rerun deploy_vercel.bat.
+
+
+VERCEL BLACK SCREEN FIX - 2026-04-30
+====================================
+
+User reported that https://tapestry-lake.vercel.app showed a black screen
+for more than a minute.
+
+Diagnosis:
+- Live Vercel /App.jsx returned Content-Type: text/jsx; charset=utf-8.
+- Browser module scripts require a JavaScript MIME type, so this can prevent
+  the app module from executing and leave only the black page background.
+- Live Vercel /src/api.js still contained:
+  DEPLOY_API_URL = "https://tapestry-api.onrender.com"
+  instead of the real backend:
+  https://tapestry-2iyf.onrender.com
+
+Fix:
+- Updated scripts/build_static.js so the deploy build copies App.jsx to
+  dist/App.js and rewrites index.html to load /App.js.
+- Rebuilt dist with:
+  VITE_API_URL=https://tapestry-2iyf.onrender.com
+- Verified local dist/index.html now loads:
+  <script type="module" src="/App.js"></script>
+- Verified local dist/src/api.js now contains:
+  DEPLOY_API_URL = "https://tapestry-2iyf.onrender.com"
+- Updated deploy_vercel.bat to pass the production env explicitly:
+  vercel deploy --prod --env VITE_API_URL=https://tapestry-2iyf.onrender.com
+
+Next required user action:
+- Rerun deploy_vercel.bat from the project root to push the fixed build to
+  Vercel.
+
+
+VERCEL OFFLINE BANNER DIAGNOSIS - 2026-04-30
+============================================
+
+User reported that the Vercel frontend loads but shows:
+"Backend offline - start the API server at localhost:8000 to load live data"
+
+Live diagnostics:
+- https://tapestry-lake.vercel.app/index.html loads /App.js correctly.
+- https://tapestry-lake.vercel.app/src/api.js still contained:
+  DEPLOY_API_URL = "https://tapestry-api.onrender.com"
+- The real Render backend is healthy:
+  https://tapestry-2iyf.onrender.com/api/chambers -> 200
+  https://tapestry-2iyf.onrender.com/api/districts/AZ-06 -> 200
+- CORS from Render is correct for:
+  Origin: https://tapestry-lake.vercel.app
+
+Root cause:
+- Vercel was running a build that still had the old placeholder backend URL.
+
+Fix:
+- scripts/build_static.js default backend changed from
+  https://tapestry-api.onrender.com
+  to
+  https://tapestry-2iyf.onrender.com
+- deploy_vercel.bat now passes both:
+  --build-env VITE_API_URL=https://tapestry-2iyf.onrender.com
+  --env VITE_API_URL=https://tapestry-2iyf.onrender.com
+- dist rebuilt locally and confirmed dist/src/api.js contains:
+  DEPLOY_API_URL = "https://tapestry-2iyf.onrender.com"
+
+Required action:
+- Rerun deploy_vercel.bat so Vercel receives this corrected build.
+
+
+DISTRICT INTELLIGENCE FEED SCOPING FIX - 2026-04-30
+===================================================
+
+User reported that district Intelligence Feed cards were identical across
+districts, showing Michigan/Romulus ICE detention stories everywhere.
+
+Root cause:
+- The frontend accepted broad national or empty-scope event tokens for every
+  district panel.
+- RightPanel rendered whatever scopedEvents returned, and the backend includes
+  national signals for district/state queries by design.
+
+Files changed:
+- App.jsx
+- dist rebuilt via scripts/build_static.js
+- TAPESTRY_RECAP_FOR_CLAUDE.txt
+
+Fix:
+- Added helper functions:
+  asUpperList()
+  eventMatchesScope()
+  scopedEventList()
+- DistrictPanel ACTIVE INTELLIGENCE now prefers events explicitly matching:
+  affected_districts includes district_id OR affected_states includes state.
+- RightPanel INTELLIGENCE FEED now scopes by selected district/state and shows:
+  "No district-specific intelligence signals yet."
+  or
+  "No state-specific intelligence signals yet."
+  instead of repeating unrelated broad events.
+- National events are only used as a fallback if no district/state-specific
+  items exist.
+
+Verification:
+- App.jsx syntax check passed.
+- Static deploy build regenerated with:
+  VITE_API_URL=https://tapestry-2iyf.onrender.com
+- dist/src/api.js confirmed to contain:
+  DEPLOY_API_URL = "https://tapestry-2iyf.onrender.com"
+
+Required user action:
+- Rerun deploy_vercel.bat to push the fixed feed behavior to Vercel.
+
+
+DISTRICT NEWS COVERAGE CLEANUP AND FULL POPULATION - 2026-04-30
+===============================================================
+
+User reported the same Michigan/Romulus ICE detention intelligence cards
+appearing across every state/district.
+
+Root causes:
+- Frontend district right panel had been using event-token intelligence,
+  which can include national or broad state signals.
+- A fast district-news fallback run inserted bad generic rows such as
+  "Texas U.S. Senate Election 2026: Latest Polls" into unrelated districts.
+- Other district-specific poll pages, such as CA-48 pages, were being used
+  as statewide fallback coverage for unrelated California districts.
+
+Files changed:
+- App.jsx
+- tapestry-backend/scripts/populate_district_news_today.py
+- tapestry-backend/scripts/clean_district_news_quality.py
+- tapestry-backend/scripts/fill_empty_district_state_news.py
+- tapestry-backend/scripts/seed_remaining_district_news.py
+- tapestry-backend/data/tapestry_demo.duckdb regenerated
+- dist rebuilt with VITE_API_URL=https://tapestry-2iyf.onrender.com
+
+Data cleanup:
+- Deleted 967 low-quality/wrong-state/generic district-news rows.
+- Deleted another 184 wrong-district rows after adding congressional-district
+  mismatch detection.
+- Remaining generic polling rows:
+  0 rows matching "latest polls" or "who is ahead in".
+
+News population:
+- Ran stricter current-news population using NewsAPI/GDELT/Google News.
+- Added dotenv loading so NEWSAPI_KEY is read from tapestry-backend/.env.
+- State fallback now uses multiple state political queries:
+  congressional election, House race, politics, midterm election.
+- State fallback rejects:
+  generic NYT polling pages,
+  "who is ahead" pages,
+  governor/Senate polling pages,
+  stories that mention another state but not the current state.
+- Added targeted filler for empty districts only.
+- Added curated real-source coverage for final sparse districts:
+  AZ-09, RI-01, SC-03, SC-04, SC-05, SC-06, SC-07, SD-AL.
+  These rows are marked source_type="CURATED COVERAGE" for auditability.
+
+Final local DB coverage:
+- race_web_articles rows: 6,642
+- districts with any race/news row: 435/435
+- districts with >=2 rows: 326/435
+- empty districts: 0
+- bad generic polling rows: 0
+
+Examples after cleanup:
+- AZ-09:
+  Cook Political Report AZ-09 House 2026
+  Battleground Vote Arizona 9th House Race 2026
+- SC-03:
+  WYFF: South Carolina congresswoman Sheri Biggs files for reelection
+  Clemson Today: Eunice Lehmacher challenge to Sheri Biggs
+- SD-AL:
+  South Dakota News Watch / KOTA: at-large House district explainer
+- CA-18 and CA-38:
+  Broad California redistricting/voting-rights coverage only; no CA-48
+  polling page cross-assignment remains.
+
+Demo DB:
+- scripts/export_demo_db.py rerun successfully.
+- Full DB size: 178.0 MB.
+- Demo DB size: 25.5 MB.
+- Demo DB includes stripped race_web_articles with all 6,642 rows and no
+  embedding BLOB column.
+
+Required deploy action:
+- Commit/push updated scripts, App.jsx, dist build, and
+  tapestry-backend/data/tapestry_demo.duckdb.
+- Render must redeploy to serve the updated demo database.
+- Vercel must redeploy to serve the updated frontend feed scoping.

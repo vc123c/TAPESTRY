@@ -17,3 +17,5 @@ __pycache__/
 # Submission/demo deploy database. Keep this exception only if using
 # the Render free-tier "commit demo DB" option.
 !tapestry-backend/data/tapestry_demo.duckdb
+
+.vercel

@@ -45,8 +45,26 @@ git commit -m "Add demo database for Render deployment"
 8. Note the backend URL, for example:
 
 ```text
-https://tapestry-api.onrender.com
+https://tapestry-2iyf.onrender.com
 ```
+
+Current Render URL supplied for this project:
+
+```text
+https://tapestry-2iyf.onrender.com
+```
+
+If this URL returns `404 Not Found` for `/`, `/docs`, or `/api/chambers`, the service is reachable but is not running the TAPESTRY FastAPI app. In Render, check:
+
+- Root Directory must be `tapestry-backend`
+- Build Command must be `pip install -r requirements_serve.txt`
+- Start Command must be `uvicorn main:app --host 0.0.0.0 --port $PORT`
+- Environment variables must include:
+  - `DATABASE_PATH=./data/tapestry_demo.duckdb`
+  - `ENVIRONMENT=production`
+- The GitHub repo/deploy must include `tapestry-backend/data/tapestry_demo.duckdb`
+
+After changing these settings, click **Manual Deploy** -> **Clear build cache & deploy**.
 
 Render free tier may spin down after inactivity. First request after spin-down can take around 30 seconds.
 
@@ -61,12 +79,34 @@ VITE_API_URL=https://your-render-url.onrender.com
 The checked-in `.env.production` currently uses:
 
 ```text
-VITE_API_URL=https://tapestry-api.onrender.com
+VITE_API_URL=https://tapestry-2iyf.onrender.com
 ```
 
 Update this after Render gives the actual URL.
 
 ## Step 4: Deploy Frontend To Vercel
+
+Command-line option:
+
+```bat
+deploy_vercel.bat
+```
+
+This script builds the frontend with:
+
+```text
+VITE_API_URL=https://tapestry-2iyf.onrender.com
+```
+
+and then runs:
+
+```bat
+vercel deploy --prod
+```
+
+If it says `npm is not available`, install Node.js LTS from `https://nodejs.org`, close and reopen Command Prompt, then run `deploy_vercel.bat` again.
+
+Dashboard option:
 
 1. Go to [Vercel](https://vercel.com).
 2. Click **Add New** -> **Project**.
@@ -96,9 +136,9 @@ Open the Vercel URL and verify:
 Check backend directly:
 
 ```text
-https://your-render-url.onrender.com/api/chambers
-https://your-render-url.onrender.com/api/districts/AZ-06
-https://your-render-url.onrender.com/api/morning-brief
+https://tapestry-2iyf.onrender.com/api/chambers
+https://tapestry-2iyf.onrender.com/api/districts/AZ-06
+https://tapestry-2iyf.onrender.com/api/morning-brief
 ```
 
 Expected:
