@@ -2491,3 +2491,37 @@ Required deploy action:
   tapestry-backend/data/tapestry_demo.duckdb.
 - Render must redeploy to serve the updated demo database.
 - Vercel must redeploy to serve the updated frontend feed scoping.
+
+
+FRONTEND CACHE-BUST FOR DISTRICT FEED FIX - 2026-04-30
+======================================================
+
+User confirmed Render is live on commit 4fe35ce but the Vercel UI still
+showed old Michigan/Romulus event cards in TX-11.
+
+Diagnosis:
+- Live Vercel index.html still referenced /App.js.
+- Because the app bundle URL did not change between deploys, the browser
+  could continue executing a cached old App.js even after Vercel deployed the
+  correct source.
+- Live /App.js did contain the fixed branch, but the user's browser view was
+  still behaving like the previous event-feed implementation.
+
+Fix:
+- scripts/build_static.js now emits a versioned app bundle:
+  App.<build-id>.js
+- dist/index.html is rewritten to point to that versioned bundle.
+- The build id comes from VERCEL_GIT_COMMIT_SHA, TAPESTRY_BUILD_ID, or a
+  timestamp fallback.
+- This forces Vercel/browser cache to load the new district-feed code after
+  each deploy.
+
+Verification:
+- Local static build generated:
+  /App.feedfix-2026.js
+- dist/index.html now contains:
+  <script type="module" src="/App.feedfix-2026.js"></script>
+
+Required action:
+- Commit/push scripts/build_static.js and recap.
+- Let Vercel redeploy, then hard refresh the browser once.
