@@ -150,10 +150,11 @@ function eventMatchesScope(event, { districtId, stateAbbr, includeNational = fal
   return includeNational && isNational;
 }
 
-function scopedEventList(events, scope, limit = 7) {
+function scopedEventList(events, scope, limit = 7, { fallbackNational = false } = {}) {
   const rows = events || [];
   const local = rows.filter((event) => eventMatchesScope(event, scope));
   if (local.length) return local.slice(0, limit);
+  if (!fallbackNational) return [];
   return rows.filter((event) => eventMatchesScope(event, { ...scope, includeNational: true })).slice(0, limit);
 }
 
@@ -549,12 +550,13 @@ function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail,
   const newsCount = districtNews?.articles?.length || 0;
   const districtId = activeDistrict?.liveDistrict?.district_id || activeDistrict?.districtLabel || null;
   const districtFeedArticles = (districtNews?.articles || []).slice(0, 7);
-  const scopedFeed = activeDistrict
+  const isDistrictMode = Boolean(activeDistrict || districtDetail?.district_id || districtFeedArticles.length);
+  const scopedFeed = isDistrictMode
     ? scopedEventList(events, { districtId, stateAbbr: activeState }, 7)
     : activeState
       ? scopedEventList(events, { stateAbbr: activeState }, 7)
       : (events || []).slice(0, 7);
-  const emptyFeedText = activeDistrict
+  const emptyFeedText = isDistrictMode
     ? "No district-specific intelligence signals yet."
     : activeState
       ? "No state-specific intelligence signals yet."
@@ -586,8 +588,8 @@ function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail,
             : h("p", { className: "muted tight" }, "Select a state to inspect every district race.")
         )
       ),
-      h(Section, { title: "INTELLIGENCE FEED" },
-        activeDistrict ? (
+      h(Section, { title: isDistrictMode ? "DISTRICT NEWS FEED" : "INTELLIGENCE FEED" },
+        isDistrictMode ? (
           districtFeedArticles.length ? districtFeedArticles.map((article, idx) =>
             h("a", { className: "event-feed-row", key: article.url || `${article.headline}-${idx}`, href: article.url, target: "_blank", rel: "noreferrer", title: article.headline },
               h("span", { className: "event-feed-type" }, article.source_type || "Local"),

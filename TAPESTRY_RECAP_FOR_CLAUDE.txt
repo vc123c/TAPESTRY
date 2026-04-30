@@ -2525,3 +2525,56 @@ Verification:
 Required action:
 - Commit/push scripts/build_static.js and recap.
 - Let Vercel redeploy, then hard refresh the browser once.
+
+
+STATE INTELLIGENCE FALLBACK REMOVED - 2026-04-30
+===============================================
+
+User showed California state view still displaying Michigan/Romulus ICE
+event cards in the right-panel INTELLIGENCE FEED.
+
+Root cause:
+- The state view was not the district-news branch.
+- scopedEventList() still fell back to national/unscoped event tokens when no
+  California-specific event token existed.
+- That fallback allowed unrelated broad event cards to appear under any state.
+
+Fix:
+- App.jsx scopedEventList() now takes:
+  { fallbackNational = false }
+- Default behavior for state/district scope is exact-match only:
+  affected_states must include the selected state OR affected_districts must
+  include the selected district.
+- If no exact state/district events exist, the UI shows the empty-state text
+  instead of filling with unrelated events.
+- National overview remains unaffected because it uses the national event list
+  directly.
+
+Expected behavior:
+- California state view should no longer show Michigan ICE detention stories.
+- Texas state view should no longer show Michigan ICE detention stories.
+- District views should show district news rows from /api/districts/{id}/news
+  or "No district-specific news loaded yet."
+
+
+DISTRICT NEWS FEED HARDENING - 2026-04-30
+=========================================
+
+User showed CA-13 district view still displaying SOCIAL event-token cards
+under INTELLIGENCE FEED even though "News loaded" showed 5 items.
+
+Additional hardening:
+- App.jsx RightPanel now computes isDistrictMode from:
+  activeDistrict OR districtDetail.district_id OR districtNews.articles length.
+- The right-panel section title in district mode is now:
+  DISTRICT NEWS FEED
+- District mode always renders districtNews.articles, never event tokens.
+- This creates an obvious visual deployment check:
+  if a selected district still says INTELLIGENCE FEED and shows SOCIAL cards,
+  the browser is running an old bundle.
+
+Expected behavior after Vercel redeploy:
+- CA-13 selected:
+  right panel section title should be DISTRICT NEWS FEED.
+  Cards should show source_type/source_name from /api/districts/CA-13/news,
+  not SOCIAL event-token badges.
