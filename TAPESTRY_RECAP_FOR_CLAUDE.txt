@@ -2578,3 +2578,24 @@ Expected behavior after Vercel redeploy:
   right panel section title should be DISTRICT NEWS FEED.
   Cards should show source_type/source_name from /api/districts/CA-13/news,
   not SOCIAL event-token badges.
+
+
+RIGHT-SIDE STORY FEED REMOVED FROM STATE/DISTRICT VIEWS - 2026-04-30
+====================================================================
+
+User confirmed district-specific links already appear on the left side and
+asked to remove the problematic right-side stories if needed.
+
+Final UI decision:
+- App.jsx now hides the right-panel story/intelligence feed whenever a state
+  or district is selected.
+- National overview can still show the broad national intelligence feed.
+- State view right panel now focuses on race navigation/list only.
+- District view right panel now focuses on race intelligence fields only.
+- This fully prevents Michigan/Romulus SOCIAL event cards from appearing in
+  California, Texas, or any selected district/state right panel.
+
+Expected behavior:
+- Select California: no right-side INTELLIGENCE FEED cards below the race list.
+- Select CA-13 or TX-11: no right-side story cards; district-specific news
+  remains available in the left panel.

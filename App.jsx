@@ -588,7 +588,7 @@ function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail,
             : h("p", { className: "muted tight" }, "Select a state to inspect every district race.")
         )
       ),
-      h(Section, { title: isDistrictMode ? "DISTRICT NEWS FEED" : "INTELLIGENCE FEED" },
+      !activeState && !isDistrictMode && h(Section, { title: "INTELLIGENCE FEED" },
         isDistrictMode ? (
           districtFeedArticles.length ? districtFeedArticles.map((article, idx) =>
             h("a", { className: "event-feed-row", key: article.url || `${article.headline}-${idx}`, href: article.url, target: "_blank", rel: "noreferrer", title: article.headline },
