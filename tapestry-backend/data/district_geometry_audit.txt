@@ -1,0 +1,60 @@
+﻿TAPESTRY congressional district geometry audit
+Generated: 2026-04-26T11:19:27
+Source: https://cdn.jsdelivr.net/gh/civic-interconnect/civic-data-boundaries-us-cd118@main/data-out/national/cd118_us.geojson
+
+State counts after dropping Census "districts not defined" ZZ features:
+AL 01: expected 7, valid 7, raw 7 => OK
+AK 02: expected 1, valid 1, raw 1 => OK
+AZ 04: expected 9, valid 9, raw 9 => OK
+AR 05: expected 4, valid 4, raw 4 => OK
+CA 06: expected 52, valid 52, raw 52 => OK
+CO 08: expected 8, valid 8, raw 8 => OK
+CT 09: expected 5, valid 5, raw 6 => OK
+DE 10: expected 1, valid 1, raw 1 => OK
+FL 12: expected 28, valid 28, raw 28 => OK
+GA 13: expected 14, valid 14, raw 14 => OK
+HI 15: expected 2, valid 2, raw 2 => OK
+ID 16: expected 2, valid 2, raw 2 => OK
+IL 17: expected 17, valid 17, raw 18 => OK
+IN 18: expected 9, valid 9, raw 9 => OK
+IA 19: expected 4, valid 4, raw 4 => OK
+KS 20: expected 4, valid 4, raw 4 => OK
+KY 21: expected 6, valid 6, raw 6 => OK
+LA 22: expected 6, valid 6, raw 6 => OK
+ME 23: expected 2, valid 2, raw 2 => OK
+MD 24: expected 8, valid 8, raw 8 => OK
+MA 25: expected 9, valid 9, raw 9 => OK
+MI 26: expected 13, valid 13, raw 13 => OK
+MN 27: expected 8, valid 8, raw 8 => OK
+MS 28: expected 4, valid 4, raw 4 => OK
+MO 29: expected 8, valid 8, raw 8 => OK
+MT 30: expected 2, valid 2, raw 2 => OK
+NE 31: expected 3, valid 3, raw 3 => OK
+NV 32: expected 4, valid 4, raw 4 => OK
+NH 33: expected 2, valid 2, raw 3 => OK
+NJ 34: expected 12, valid 12, raw 12 => OK
+NM 35: expected 3, valid 3, raw 3 => OK
+NY 36: expected 26, valid 26, raw 26 => OK
+NC 37: expected 14, valid 14, raw 14 => OK
+ND 38: expected 1, valid 1, raw 1 => OK
+OH 39: expected 15, valid 15, raw 15 => OK
+OK 40: expected 5, valid 5, raw 5 => OK
+OR 41: expected 6, valid 6, raw 6 => OK
+PA 42: expected 17, valid 17, raw 17 => OK
+RI 44: expected 2, valid 2, raw 2 => OK
+SC 45: expected 7, valid 7, raw 7 => OK
+SD 46: expected 1, valid 1, raw 1 => OK
+TN 47: expected 9, valid 9, raw 9 => OK
+TX 48: expected 38, valid 38, raw 38 => OK
+UT 49: expected 4, valid 4, raw 4 => OK
+VT 50: expected 1, valid 1, raw 1 => OK
+VA 51: expected 11, valid 11, raw 11 => OK
+WA 53: expected 10, valid 10, raw 10 => OK
+WV 54: expected 2, valid 2, raw 2 => OK
+WI 55: expected 8, valid 8, raw 8 => OK
+WY 56: expected 1, valid 1, raw 1 => OK
+
+Invalid non-district features intentionally filtered by App.jsx:
+CT 09: 09ZZ ZZ Congressional Districts not defined
+IL 17: 17ZZ ZZ Congressional Districts not defined
+NH 33: 33ZZ ZZ Congressional Districts not defined

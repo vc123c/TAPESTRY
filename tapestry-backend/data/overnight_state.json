@@ -1,0 +1,185 @@
+{
+  "run_date": "2026-04-25",
+  "steps": {
+    "fred": {
+      "name": "FRED economic data",
+      "status": "complete",
+      "rows_loaded": 0,
+      "cache_hit": true,
+      "duration_seconds": 0.0,
+      "warning": null,
+      "completed_at": "2026-04-26T19:23:31.795809+00:00"
+    },
+    "eia": {
+      "name": "EIA gas prices",
+      "status": "complete",
+      "rows_loaded": 0,
+      "cache_hit": true,
+      "duration_seconds": 0.0,
+      "warning": null,
+      "completed_at": "2026-04-26T19:23:31.797486+00:00"
+    },
+    "bls": {
+      "name": "BLS grocery and egg prices",
+      "status": "complete",
+      "rows_loaded": 0,
+      "cache_hit": true,
+      "duration_seconds": 0.0,
+      "warning": null,
+      "completed_at": "2026-04-26T19:23:31.799632+00:00"
+    },
+    "census": {
+      "name": "Census ACS district demographics",
+      "status": "complete",
+      "rows_loaded": 0,
+      "cache_hit": true,
+      "duration_seconds": 0.0,
+      "warning": null,
+      "completed_at": "2026-04-26T19:23:31.800636+00:00"
+    },
+    "fec": {
+      "name": "FEC 2026 candidate finance update",
+      "status": "complete",
+      "rows_loaded": 3321,
+      "cache_hit": false,
+      "duration_seconds": 48.93,
+      "warning": null,
+      "completed_at": "2026-04-26T19:24:20.736179+00:00"
+    },
+    "ballotpedia": {
+      "name": "Ballotpedia candidate scrape",
+      "status": "complete",
+      "rows_loaded": 0,
+      "cache_hit": true,
+      "duration_seconds": 0.0,
+      "warning": null,
+      "completed_at": "2026-04-26T19:24:20.739428+00:00"
+    },
+    "trends": {
+      "name": "Google Trends",
+      "status": "partial",
+      "rows_loaded": 32,
+      "cache_hit": false,
+      "duration_seconds": 5400.02,
+      "warning": "Timed out after 5400s\n exceeded overnight step timeout",
+      "completed_at": "2026-04-26T05:25:37.007713+00:00"
+    },
+    "local_news": {
+      "name": "Local news scrape",
+      "status": "partial",
+      "rows_loaded": 478,
+      "cache_hit": false,
+      "duration_seconds": 1200.07,
+      "warning": "med out\n2026-04-26 12:26:42,424 WARNING [scrapers.local_news] GDELT local news failed for CO: timed out\n2026-04-26 12:26:51,724 WARNING [scrapers.local_news] GDELT local news failed for NH: _ssl.c:993: The handshake operation timed out\n2026-04-26 12:27:03,031 WARNING [scrapers.local_news] GDELT local news failed for ME: _ssl.c:993: The handshake operation timed out\n2026-04-26 12:27:11,312 WARNING [scrapers.local_news] GDELT local news failed for MT: _ssl.c:993: The handshake operation timed out\n",
+      "completed_at": "2026-04-26T19:44:22.446847+00:00"
+    },
+    "source_intel": {
+      "name": "Source intelligence and event tokenization",
+      "status": "complete",
+      "rows_loaded": 6323,
+      "cache_hit": false,
+      "duration_seconds": 236.94,
+      "warning": null,
+      "completed_at": "2026-04-26T20:33:23.167978+00:00"
+    },
+    "kalshi": {
+      "name": "Kalshi market data",
+      "status": "complete",
+      "rows_loaded": 0,
+      "cache_hit": true,
+      "duration_seconds": 0.0,
+      "warning": null,
+      "completed_at": "2026-04-26T20:38:18.713481+00:00"
+    },
+    "dwnominate": {
+      "name": "DW-NOMINATE polarization data",
+      "status": "complete",
+      "rows_loaded": 51053,
+      "cache_hit": false,
+      "duration_seconds": 0.22,
+      "warning": null,
+      "completed_at": "2026-04-26T20:38:20.443251+00:00"
+    },
+    "polling": {
+      "name": "Historical polling archive",
+      "status": "partial",
+      "rows_loaded": 0,
+      "cache_hit": false,
+      "duration_seconds": 0.42,
+      "warning": "https://raw.githubusercontent.com/fivethirtyeight/data/master/congress-generic-ballot/generic_ballot_averages.csv failed: HTTPStatusError",
+      "completed_at": "2026-04-26T20:38:20.864350+00:00"
+    },
+    "pape": {
+      "name": "Pape Substack scrape",
+      "status": "complete",
+      "rows_loaded": 0,
+      "cache_hit": true,
+      "duration_seconds": 0.0,
+      "warning": null,
+      "completed_at": "2026-04-26T20:38:20.866724+00:00"
+    },
+    "candidate_sanity": {
+      "name": "Candidate roster sanity audit",
+      "status": "complete",
+      "rows_loaded": 3355,
+      "cache_hit": false,
+      "duration_seconds": 1.62,
+      "warning": null,
+      "completed_at": "2026-04-26T19:24:22.367494+00:00"
+    },
+    "race_news": {
+      "name": "Race-specific web scrape",
+      "status": "partial",
+      "rows_loaded": 731,
+      "cache_hit": false,
+      "duration_seconds": 2700.06,
+      "warning": " NH-02 query=\"Ann Mclane Kuster\" congress 2026 error=ConnectTimeout\n2026-04-26 13:28:46,585 WARNING [scrapers.race_web] Race GDELT failed for NH-02 query=\"Charles F Bass\" congress 2026 error=ConnectTimeout\n2026-04-26 13:28:57,617 WARNING [scrapers.race_web] Race GDELT failed for NH-02 query=\"New Hampshire\" \"2\" congressional race 2026 error=ConnectTimeout\n2026-04-26 13:29:12,842 WARNING [scrapers.race_web] Race GDELT failed for MI-03 query=\"Hillary J. Scholten\" congress 2026 error=ConnectTimeout\n",
+      "completed_at": "2026-04-26T20:29:22.515527+00:00"
+    },
+    "incumbent_status": {
+      "name": "Incumbent retirements and vacancies",
+      "status": "complete",
+      "rows_loaded": 60,
+      "cache_hit": false,
+      "duration_seconds": 1.95,
+      "warning": null,
+      "completed_at": "2026-04-26T20:29:24.473403+00:00"
+    },
+    "twoseventy_house": {
+      "name": "270toWin House race context",
+      "status": "complete",
+      "rows_loaded": 56,
+      "cache_hit": false,
+      "duration_seconds": 1.74,
+      "warning": null,
+      "completed_at": "2026-04-26T20:29:26.221531+00:00"
+    },
+    "ideology_corpus": {
+      "name": "Ideology corpus scrape",
+      "status": "complete",
+      "rows_loaded": 3110,
+      "cache_hit": false,
+      "duration_seconds": 154.8,
+      "warning": null,
+      "completed_at": "2026-04-26T20:35:57.969782+00:00"
+    },
+    "backfill_embeddings": {
+      "name": "Backfill article and ideology embeddings",
+      "status": "complete",
+      "rows_loaded": 731,
+      "cache_hit": false,
+      "duration_seconds": 140.74,
+      "warning": null,
+      "completed_at": "2026-04-26T20:38:18.710886+00:00"
+    },
+    "polymarket": {
+      "name": "Polymarket market data",
+      "status": "complete",
+      "rows_loaded": 1021,
+      "cache_hit": false,
+      "duration_seconds": 1.5,
+      "warning": null,
+      "completed_at": "2026-04-26T20:38:20.218352+00:00"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+tapestry-backend/
+node_modules/
+dist/
+.env
+.env.local
+*.log
+TAPESTRY_SOURCE_AND_DATA_AUDIT.txt

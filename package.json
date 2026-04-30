@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "dev": "node server.js",
+    "build": "node scripts/build_static.js",
+    "preview": "node scripts/serve_dist.js"
+  },
+  "dependencies": {}
+}

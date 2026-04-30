@@ -1,0 +1,9 @@
+.env
+secrets/
+data/*.duckdb
+data/*.duckdb.wal
+!data/tapestry_demo.duckdb
+data/logs/
+data/models/*.pkl
+__pycache__/
+*.pyc

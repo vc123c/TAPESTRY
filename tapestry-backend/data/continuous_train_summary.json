@@ -1,0 +1,337 @@
+{
+  "updated_at": "2026-04-27T14:27:03.506443+00:00",
+  "sleep_minutes": 20,
+  "max_cycles": 0,
+  "cycles": [
+    {
+      "cycle": 1,
+      "started_counts": {
+        "race_web_articles": 731,
+        "race_news_districts": 20,
+        "local_news": 478,
+        "local_news_districts": 11,
+        "event_tokens": 286,
+        "events_with_states": 286,
+        "national_signals": 0,
+        "embedded_race_articles": 731,
+        "gini_nulls": 438,
+        "healthcare_nulls": 0,
+        "data_center_nulls": 0
+      },
+      "finished_counts": {
+        "race_web_articles": 731,
+        "race_news_districts": 20,
+        "local_news": 478,
+        "local_news_districts": 11,
+        "event_tokens": 445,
+        "events_with_states": 445,
+        "national_signals": 0,
+        "embedded_race_articles": 731,
+        "gini_nulls": 438,
+        "healthcare_nulls": 0,
+        "data_center_nulls": 0
+      },
+      "tasks": [
+        {
+          "name": "local news scrape",
+          "status": "timeout",
+          "duration_seconds": 1800.0,
+          "output_tail": ""
+        },
+        {
+          "name": "race-specific web scrape",
+          "status": "timeout",
+          "duration_seconds": 3600.0,
+          "output_tail": "=ConnectTimeout\n2026-04-27 00:39:13,244 WARNING [scrapers.race_web] Race GDELT failed for NY-01 query=\"Nancy Goroff\" congress 2026 error=ConnectTimeout\n2026-04-27 00:39:30,211 WARNING [scrapers.race_web] Race GDELT failed for NY-01 query=\"New York\" 1st congressional 2026 error=ConnectTimeout\n2026-04-27 00:39:40,438 WARNING [scrapers.race_web] Race GDELT failed for NY-01 query=\"New York\" House race 2026 district 1 error=ConnectTimeout\n2026-04-27 00:39:50,525 WARNING [scrapers.race_web] Race GDELT failed for NY-01 query=\"New York\" \"1\" congressional race 2026 error=ConnectTimeout\n2026-04-27 00:39:54,493 INFO [scrapers.race_web] [35/120] NY-01: 40 articles (40 google_news)\n2026-04-27 00:40:02,519 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Jim Costa\" CA congress 2026 error=ConnectTimeout\n2026-04-27 00:40:12,516 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Jim Costa\" reelection 2026 error=ConnectTimeout\n2026-04-27 00:40:29,487 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Eric Garcia\" congress 2026 error=ConnectTimeout\n2026-04-27 00:40:42,552 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Michael A Maher\" congress 2026 error=ConnectTimeout\n2026-04-27 00:40:59,525 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Kyle Kirkland\" congress 2026 error=ConnectTimeout\n2026-04-27 00:41:09,373 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"California\" 21th congressional 2026 error=ConnectTimeout\n2026-04-27 00:41:19,406 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"California\" House race 2026 district 21 error=ConnectTimeout\n2026-04-27 00:41:29,446 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"California\" \"21\" congressional race 2026 error=ConnectTimeout"
+        },
+        {
+          "name": "source intelligence scrape",
+          "status": "ok",
+          "duration_seconds": 273.4,
+          "output_tail": "4 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Billionaire blitz: Steyer\u2019s $132 million campaign dwarfs rivals in California governor race' article_count=1\n2026-04-27 00:45:53,477 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='In another wild turn for AI chips, Meta signs deal for millions of Amazon AI CPUs' article_count=1\n2026-04-27 00:45:53,492 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='The War in Iran Has Triggered a Helium Crisis' article_count=1\n2026-04-27 00:45:53,509 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Review: Queer Eye Helped Promote LGBTQ Acceptance Without Yelling at People' article_count=1\n2026-04-27 00:45:53,577 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Rare Survivors of Pacific Boat Strikes Allege U.S. Forces Kidnapped and Tortured Them' article_count=1\n2026-04-27 00:45:53,577 INFO [scrapers.source_intel] Event taxonomy reprocessed: 223 tokens; above threshold: 36\n2026-04-27 00:45:54,145 INFO [scrapers.source_intel] Event taxonomy reprocessed: 768 tokens; above threshold: 108; top=[('Civil rights organizations call for independent investigation into Michigan ICE detention center', 'social_event', 0.8), ('IEA\u2019s Birol Says Iran War Will Permanently Cut Into Future Oil Demand', 'conflict_escalation', 0.8), ('Federal immigration officer charged with assault over confrontation at Durango ICE protest', 'immigration_policy', 0.8), ('US citizens shot by ICE beg Congress to rein in federal immigration agents', 'immigration_policy', 0.8), ('US citizens shot by ICE beg Congress to rein in federal immigration agents', 'immigration_policy', 0.8)]"
+        },
+        {
+          "name": "backfill embeddings",
+          "status": "ok",
+          "duration_seconds": 26.8,
+          "output_tail": "[00:46:28] media_event_articles: embedded 50 rows\n[00:46:28] media_event_articles: embedded 100 rows\n[00:46:29] Embedding backfill complete: {'race_web_articles': 0, 'media_event_articles': 157, 'ideology_corpus_chunks': 0}\nWarning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n\nLoading weights:   0%|          | 0/103 [00:00<?, ?it/s]\nLoading weights: 100%|##########| 103/103 [00:00<00:00, 5754.12it/s]"
+        },
+        {
+          "name": "backfill event states",
+          "status": "ok",
+          "duration_seconds": 2.5,
+          "output_tail": "445 tokens updated\nevents with explicit states: 290\nnational signals: 94"
+        },
+        {
+          "name": "fill static features",
+          "status": "ok",
+          "duration_seconds": 1.3,
+          "output_tail": "Static feature fill updated 438 districts"
+        },
+        {
+          "name": "model-only training",
+          "status": "ok",
+          "duration_seconds": 13.9,
+          "output_tail": ": 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n\n=== LEAKAGE DIAGNOSTIC FOR TEST YEAR 2022 ===\nPVI rows using test/future year: 0\nmargin_t0 equals outcome rows: 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n\n=== LEAKAGE DIAGNOSTIC FOR TEST YEAR 2024 ===\nPVI rows using test/future year: 0\nmargin_t0 equals outcome rows: 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n[00:46:47] OK Model training complete in 0.2 min\n[00:46:47] Model trained on 2988 historical races across 9 election cycles\n[00:46:48] OK Overnight summary written\n[00:46:48] OK All requested overnight work complete\n2026-04-27 00:46:36,377 INFO [db.connection] DuckDB initialized at data\\tapestry.duckdb\n2026-04-27 00:46:36,455 INFO [db.connection] DuckDB initialized at data\\tapestry.duckdb\n2026-04-27 00:46:36,504 INFO [model.features] Feature imputation summary: gini_coefficient: 435 districts used national/default avg, income_growth_2yr: 435 districts used national/default avg, incumbent_years: 5 districts used national/default avg, margin_t0: 6 districts used national/default avg, net_hiring_trend: 435 districts used national/default avg, population_density: 435 districts used national/default avg, recent_layoffs: 435 districts used national/default avg, tech_employment_share: 435 districts used national/default avg (run census/FEC scrapers to fill these gaps)"
+        },
+        {
+          "name": "coverage report",
+          "status": "ok",
+          "duration_seconds": 0.7,
+          "output_tail": "TAPESTRY COVERAGE REVIEW\n========================\nhouse_roster rows: 435\ncandidate_roster_2026 rows: 3355\ndistrict_forecasts rows: 1305\nrace_web_articles rows: 731\ndistricts with race articles: 20\nlocal_news rows: 478\ndistricts with local news: 11\nmedia_event_articles rows: 6480\nevent_tokens rows: 445\nevents above threshold: 65\nevents with affected_states: 445\nnational signals: 0\n\nFEATURE COVERAGE\n----------------\ngini_coefficient nulls: 438\ngini_coefficient distinct non-null: 0\nhealthcare_cost_burden nulls: 0\nhealthcare_cost_burden distinct non-null: 50\ndata_center_mw_planned nulls: 0\ndata_center_mw_planned distinct non-null: 16\nincumbent_years nulls: 8\nincumbent_years distinct non-null: 3\n\nSANITY CANDIDATES\n-----------------\nAZ-06: ('AZ-06', 'Juan Ciscomani', 'R')\nCA-30: ('CA-30', 'Laura Friedman', 'D')\n\nMODEL REPORT\n------------\nmodel_version: overnight_2026-04-27\ntraining_examples: 2988\nmissing_value_rate: 0.010060443795383555\ntop_features:\n  incumbency_advantage: 0.0919\n  white_pct: 0.0688\n  cook_pvi: 0.0516\n  local_news_intensity: 0.0489\n  black_pct: 0.0486\n  healthcare_cost_burden: 0.0484\n  college_educated_pct: 0.0451\n  data_center_opposition_score: 0.0439\n  college_realignment_interaction: 0.0433\n  uninsured_rate: 0.0430\n  rent_burden_pct: 0.0419\n  scandal_effect: 0.0414\n  median_income_real: 0.0400\n  data_center_mw_planned: 0.0360\n  medical_debt_x_approval: 0.0337"
+        }
+      ]
+    },
+    {
+      "cycle": 2,
+      "started_counts": {
+        "race_web_articles": 731,
+        "race_news_districts": 20,
+        "local_news": 478,
+        "local_news_districts": 11,
+        "event_tokens": 445,
+        "events_with_states": 445,
+        "national_signals": 0,
+        "embedded_race_articles": 731,
+        "gini_nulls": 438,
+        "healthcare_nulls": 0,
+        "data_center_nulls": 0
+      },
+      "finished_counts": {
+        "race_web_articles": 731,
+        "race_news_districts": 20,
+        "local_news": 478,
+        "local_news_districts": 11,
+        "event_tokens": 451,
+        "events_with_states": 451,
+        "national_signals": 0,
+        "embedded_race_articles": 731,
+        "gini_nulls": 438,
+        "healthcare_nulls": 0,
+        "data_center_nulls": 0
+      },
+      "tasks": [
+        {
+          "name": "local news scrape",
+          "status": "timeout",
+          "duration_seconds": 1800.0,
+          "output_tail": ""
+        },
+        {
+          "name": "race-specific web scrape",
+          "status": "timeout",
+          "duration_seconds": 3600.0,
+          "output_tail": "ING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Jim Costa\" CA congress 2026 error=ConnectTimeout\n2026-04-27 02:34:43,252 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Jim Costa\" reelection 2026 error=ConnectTimeout\n2026-04-27 02:34:53,184 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Eric Garcia\" congress 2026 error=ConnectTimeout\n2026-04-27 02:35:03,151 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Michael A Maher\" congress 2026 error=ConnectTimeout\n2026-04-27 02:35:13,031 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Kyle Kirkland\" congress 2026 error=ConnectTimeout\n2026-04-27 02:35:29,975 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"California\" 21th congressional 2026 error=ConnectTimeout\n2026-04-27 02:35:39,904 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"California\" House race 2026 district 21 error=ConnectTimeout\n2026-04-27 02:35:49,887 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"California\" \"21\" congressional race 2026 error=ConnectTimeout\n2026-04-27 02:36:01,804 WARNING [scrapers.race_web] Race GDELT failed for OR-06 query=\"Andrea Salinas\" OR congress 2026 error=ConnectTimeout\n2026-04-27 02:36:11,962 WARNING [scrapers.race_web] Race GDELT failed for OR-06 query=\"Andrea Salinas\" reelection 2026 error=ConnectTimeout\n2026-04-27 02:36:24,889 WARNING [scrapers.race_web] Race GDELT failed for OR-06 query=\"Steven Cody Reynolds\" congress 2026 error=ConnectTimeout\n2026-04-27 02:36:34,809 WARNING [scrapers.race_web] Race GDELT failed for OR-06 query=\"Loretta Smith\" congress 2026 error=ConnectTimeout\n2026-04-27 02:36:44,722 WARNING [scrapers.race_web] Race GDELT failed for OR-06 query=\"David Honorable Russ\" congress 2026 error=ConnectTimeout"
+        },
+        {
+          "name": "source intelligence scrape",
+          "status": "ok",
+          "duration_seconds": 209.6,
+          "output_tail": "ed and Tortured Them' article_count=1\n2026-04-27 02:40:08,807 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Trump\u2019s Environmental Cuts Further Marginalize Vulnerable Communities' article_count=1\n2026-04-27 02:40:08,862 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Congress under pressure to end DHS shutdown as it returns to session this week' article_count=1\n2026-04-27 02:40:08,862 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Sanctions Escalation Hits Chinese Refiners Tied to Iranian Crude Trade' article_count=1\n2026-04-27 02:40:08,862 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='The Iran War Is Impacting the Environment in Unseen Ways' article_count=1\n2026-04-27 02:40:08,862 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='The Help That Many Older Americans Need Most' article_count=1\n2026-04-27 02:40:08,901 INFO [scrapers.source_intel] Event taxonomy reprocessed: 233 tokens; above threshold: 37\n2026-04-27 02:40:09,480 INFO [scrapers.source_intel] Event taxonomy reprocessed: 777 tokens; above threshold: 110; top=[('Civil rights organizations call for independent investigation into Michigan ICE detention center', 'social_event', 0.8), ('IEA\u2019s Birol Says Iran War Will Permanently Cut Into Future Oil Demand', 'conflict_escalation', 0.8), ('Federal immigration officer charged with assault over confrontation at Durango ICE protest', 'immigration_policy', 0.8), ('US citizens shot by ICE beg Congress to rein in federal immigration agents', 'immigration_policy', 0.8), ('US citizens shot by ICE beg Congress to rein in federal immigration agents', 'immigration_policy', 0.8)]"
+        },
+        {
+          "name": "backfill embeddings",
+          "status": "ok",
+          "duration_seconds": 12.7,
+          "output_tail": "[02:40:28] media_event_articles: embedded 50 rows\n[02:40:29] media_event_articles: embedded 100 rows\n[02:40:30] media_event_articles: embedded 200 rows\n[02:40:31] Embedding backfill complete: {'race_web_articles': 0, 'media_event_articles': 235, 'ideology_corpus_chunks': 0}\nWarning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n\nLoading weights:   0%|          | 0/103 [00:00<?, ?it/s]\nLoading weights: 100%|##########| 103/103 [00:00<00:00, 8256.98it/s]"
+        },
+        {
+          "name": "backfill event states",
+          "status": "ok",
+          "duration_seconds": 2.4,
+          "output_tail": "451 tokens updated\nevents with explicit states: 297\nnational signals: 93"
+        },
+        {
+          "name": "fill static features",
+          "status": "ok",
+          "duration_seconds": 1.1,
+          "output_tail": "Static feature fill updated 438 districts"
+        },
+        {
+          "name": "model-only training",
+          "status": "ok",
+          "duration_seconds": 13.6,
+          "output_tail": ": 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n\n=== LEAKAGE DIAGNOSTIC FOR TEST YEAR 2022 ===\nPVI rows using test/future year: 0\nmargin_t0 equals outcome rows: 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n\n=== LEAKAGE DIAGNOSTIC FOR TEST YEAR 2024 ===\nPVI rows using test/future year: 0\nmargin_t0 equals outcome rows: 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n[02:40:48] OK Model training complete in 0.2 min\n[02:40:48] Model trained on 2988 historical races across 9 election cycles\n[02:40:48] OK Overnight summary written\n[02:40:48] OK All requested overnight work complete\n2026-04-27 02:40:37,189 INFO [db.connection] DuckDB initialized at data\\tapestry.duckdb\n2026-04-27 02:40:37,265 INFO [db.connection] DuckDB initialized at data\\tapestry.duckdb\n2026-04-27 02:40:37,311 INFO [model.features] Feature imputation summary: gini_coefficient: 435 districts used national/default avg, income_growth_2yr: 435 districts used national/default avg, incumbent_years: 5 districts used national/default avg, margin_t0: 6 districts used national/default avg, net_hiring_trend: 435 districts used national/default avg, population_density: 435 districts used national/default avg, recent_layoffs: 435 districts used national/default avg, tech_employment_share: 435 districts used national/default avg (run census/FEC scrapers to fill these gaps)"
+        },
+        {
+          "name": "coverage report",
+          "status": "ok",
+          "duration_seconds": 0.7,
+          "output_tail": "TAPESTRY COVERAGE REVIEW\n========================\nhouse_roster rows: 435\ncandidate_roster_2026 rows: 3355\ndistrict_forecasts rows: 1305\nrace_web_articles rows: 731\ndistricts with race articles: 20\nlocal_news rows: 478\ndistricts with local news: 11\nmedia_event_articles rows: 6715\nevent_tokens rows: 451\nevents above threshold: 67\nevents with affected_states: 451\nnational signals: 0\n\nFEATURE COVERAGE\n----------------\ngini_coefficient nulls: 438\ngini_coefficient distinct non-null: 0\nhealthcare_cost_burden nulls: 0\nhealthcare_cost_burden distinct non-null: 50\ndata_center_mw_planned nulls: 0\ndata_center_mw_planned distinct non-null: 16\nincumbent_years nulls: 8\nincumbent_years distinct non-null: 3\n\nSANITY CANDIDATES\n-----------------\nAZ-06: ('AZ-06', 'Juan Ciscomani', 'R')\nCA-30: ('CA-30', 'Laura Friedman', 'D')\n\nMODEL REPORT\n------------\nmodel_version: overnight_2026-04-27\ntraining_examples: 2988\nmissing_value_rate: 0.010060443795383555\ntop_features:\n  incumbency_advantage: 0.0873\n  white_pct: 0.0648\n  data_center_opposition_score: 0.0585\n  local_news_intensity: 0.0554\n  cook_pvi: 0.0534\n  healthcare_cost_burden: 0.0468\n  black_pct: 0.0454\n  college_realignment_interaction: 0.0450\n  college_educated_pct: 0.0433\n  rent_burden_pct: 0.0432\n  uninsured_rate: 0.0418\n  median_income_real: 0.0392\n  medical_debt_x_approval: 0.0382\n  media_x_anti: 0.0375\n  data_center_mw_planned: 0.0355"
+        }
+      ]
+    },
+    {
+      "cycle": 3,
+      "started_counts": {
+        "race_web_articles": 731,
+        "race_news_districts": 20,
+        "local_news": 478,
+        "local_news_districts": 11,
+        "event_tokens": 451,
+        "events_with_states": 451,
+        "national_signals": 0,
+        "embedded_race_articles": 731,
+        "gini_nulls": 438,
+        "healthcare_nulls": 0,
+        "data_center_nulls": 0
+      },
+      "finished_counts": {
+        "race_web_articles": 731,
+        "race_news_districts": 20,
+        "local_news": 478,
+        "local_news_districts": 11,
+        "event_tokens": 454,
+        "events_with_states": 454,
+        "national_signals": 0,
+        "embedded_race_articles": 731,
+        "gini_nulls": 438,
+        "healthcare_nulls": 0,
+        "data_center_nulls": 0
+      },
+      "tasks": [
+        {
+          "name": "local news scrape",
+          "status": "timeout",
+          "duration_seconds": 1800.0,
+          "output_tail": ""
+        },
+        {
+          "name": "race-specific web scrape",
+          "status": "timeout",
+          "duration_seconds": 3600.0,
+          "output_tail": "ectTimeout\n2026-04-27 04:28:42,418 WARNING [scrapers.race_web] Race GDELT failed for NY-01 query=\"New York\" 1st congressional 2026 error=ConnectTimeout\n2026-04-27 04:28:52,473 WARNING [scrapers.race_web] Race GDELT failed for NY-01 query=\"New York\" House race 2026 district 1 error=ConnectTimeout\n2026-04-27 04:29:02,487 WARNING [scrapers.race_web] Race GDELT failed for NY-01 query=\"New York\" \"1\" congressional race 2026 error=ConnectTimeout\n2026-04-27 04:29:06,475 INFO [scrapers.race_web] [35/120] NY-01: 40 articles (40 google_news)\n2026-04-27 04:29:14,574 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Jim Costa\" CA congress 2026 error=ConnectTimeout\n2026-04-27 04:29:24,543 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Jim Costa\" reelection 2026 error=ConnectTimeout\n2026-04-27 04:29:35,544 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Eric Garcia\" congress 2026 error=ConnectTimeout\n2026-04-27 04:29:46,567 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Michael A Maher\" congress 2026 error=ConnectTimeout\n2026-04-27 04:29:56,431 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"Kyle Kirkland\" congress 2026 error=ConnectTimeout\n2026-04-27 04:30:06,323 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"California\" 21th congressional 2026 error=ConnectTimeout\n2026-04-27 04:30:19,405 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"California\" House race 2026 district 21 error=ConnectTimeout\n2026-04-27 04:30:30,438 WARNING [scrapers.race_web] Race GDELT failed for CA-21 query=\"California\" \"21\" congressional race 2026 error=ConnectTimeout\n2026-04-27 04:30:43,538 WARNING [scrapers.race_web] Race GDELT failed for OR-06 query=\"Andrea Salinas\" OR congress 2026 error=ConnectTimeout"
+        },
+        {
+          "name": "source intelligence scrape",
+          "status": "ok",
+          "duration_seconds": 212.9,
+          "output_tail": "ing the Environment in Unseen Ways' article_count=1\n2026-04-27 04:34:13,049 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='The Help That Many Older Americans Need Most' article_count=1\n2026-04-27 04:34:13,082 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Here\u2019s How Much San Francisco Tech Companies Pay for Police Protection' article_count=1\n2026-04-27 04:34:13,082 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline=\"China's Cleantech Machine Hits Top Gear as Oil Markets Crumble\" article_count=1\n2026-04-27 04:34:13,100 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Jeffries, James warn of voting rights threats at Detroit NAACP dinner' article_count=1\n2026-04-27 04:34:13,114 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Meta inks deal for solar power at night, beamed from space' article_count=1\n2026-04-27 04:34:13,132 INFO [scrapers.source_intel] Event taxonomy reprocessed: 240 tokens; above threshold: 36\n2026-04-27 04:34:13,694 INFO [scrapers.source_intel] Event taxonomy reprocessed: 780 tokens; above threshold: 108; top=[('Civil rights organizations call for independent investigation into Michigan ICE detention center', 'social_event', 0.8), ('IEA\u2019s Birol Says Iran War Will Permanently Cut Into Future Oil Demand', 'conflict_escalation', 0.8), ('Federal immigration officer charged with assault over confrontation at Durango ICE protest', 'immigration_policy', 0.8), ('US citizens shot by ICE beg Congress to rein in federal immigration agents', 'immigration_policy', 0.8), ('US citizens shot by ICE beg Congress to rein in federal immigration agents', 'immigration_policy', 0.8)]"
+        },
+        {
+          "name": "backfill embeddings",
+          "status": "ok",
+          "duration_seconds": 30.6,
+          "output_tail": "[04:34:51] media_event_articles: embedded 50 rows\n[04:34:51] media_event_articles: embedded 100 rows\n[04:34:52] Embedding backfill complete: {'race_web_articles': 0, 'media_event_articles': 185, 'ideology_corpus_chunks': 0}\nWarning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n\nLoading weights:   0%|          | 0/103 [00:00<?, ?it/s]\nLoading weights: 100%|##########| 103/103 [00:00<00:00, 21522.11it/s]"
+        },
+        {
+          "name": "backfill event states",
+          "status": "ok",
+          "duration_seconds": 2.5,
+          "output_tail": "454 tokens updated\nevents with explicit states: 300\nnational signals: 93"
+        },
+        {
+          "name": "fill static features",
+          "status": "ok",
+          "duration_seconds": 1.1,
+          "output_tail": "Static feature fill updated 438 districts"
+        },
+        {
+          "name": "model-only training",
+          "status": "ok",
+          "duration_seconds": 14.4,
+          "output_tail": ": 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n\n=== LEAKAGE DIAGNOSTIC FOR TEST YEAR 2022 ===\nPVI rows using test/future year: 0\nmargin_t0 equals outcome rows: 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n\n=== LEAKAGE DIAGNOSTIC FOR TEST YEAR 2024 ===\nPVI rows using test/future year: 0\nmargin_t0 equals outcome rows: 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n[04:35:11] OK Model training complete in 0.2 min\n[04:35:11] Model trained on 2988 historical races across 9 election cycles\n[04:35:11] OK Overnight summary written\n[04:35:11] OK All requested overnight work complete\n2026-04-27 04:34:59,760 INFO [db.connection] DuckDB initialized at data\\tapestry.duckdb\n2026-04-27 04:34:59,839 INFO [db.connection] DuckDB initialized at data\\tapestry.duckdb\n2026-04-27 04:34:59,890 INFO [model.features] Feature imputation summary: gini_coefficient: 435 districts used national/default avg, income_growth_2yr: 435 districts used national/default avg, incumbent_years: 5 districts used national/default avg, margin_t0: 6 districts used national/default avg, net_hiring_trend: 435 districts used national/default avg, population_density: 435 districts used national/default avg, recent_layoffs: 435 districts used national/default avg, tech_employment_share: 435 districts used national/default avg (run census/FEC scrapers to fill these gaps)"
+        },
+        {
+          "name": "coverage report",
+          "status": "ok",
+          "duration_seconds": 0.7,
+          "output_tail": "TAPESTRY COVERAGE REVIEW\n========================\nhouse_roster rows: 435\ncandidate_roster_2026 rows: 3355\ndistrict_forecasts rows: 1305\nrace_web_articles rows: 731\ndistricts with race articles: 20\nlocal_news rows: 478\ndistricts with local news: 11\nmedia_event_articles rows: 6900\nevent_tokens rows: 454\nevents above threshold: 66\nevents with affected_states: 454\nnational signals: 0\n\nFEATURE COVERAGE\n----------------\ngini_coefficient nulls: 438\ngini_coefficient distinct non-null: 0\nhealthcare_cost_burden nulls: 0\nhealthcare_cost_burden distinct non-null: 50\ndata_center_mw_planned nulls: 0\ndata_center_mw_planned distinct non-null: 16\nincumbent_years nulls: 8\nincumbent_years distinct non-null: 3\n\nSANITY CANDIDATES\n-----------------\nAZ-06: ('AZ-06', 'Juan Ciscomani', 'R')\nCA-30: ('CA-30', 'Laura Friedman', 'D')\n\nMODEL REPORT\n------------\nmodel_version: overnight_2026-04-27\ntraining_examples: 2988\nmissing_value_rate: 0.010060443795383555\ntop_features:\n  incumbency_advantage: 0.0830\n  white_pct: 0.0690\n  media_x_anti: 0.0620\n  data_center_opposition_score: 0.0569\n  cook_pvi: 0.0516\n  healthcare_cost_burden: 0.0493\n  black_pct: 0.0454\n  college_realignment_interaction: 0.0427\n  college_educated_pct: 0.0422\n  uninsured_rate: 0.0409\n  rent_burden_pct: 0.0407\n  medical_debt_x_approval: 0.0387\n  local_news_intensity: 0.0379\n  median_income_real: 0.0377\n  medical_debt_per_capita: 0.0342"
+        }
+      ]
+    },
+    {
+      "cycle": 4,
+      "started_counts": {
+        "race_web_articles": 731,
+        "race_news_districts": 20,
+        "local_news": 478,
+        "local_news_districts": 11,
+        "event_tokens": 454,
+        "events_with_states": 454,
+        "national_signals": 0,
+        "embedded_race_articles": 731,
+        "gini_nulls": 438,
+        "healthcare_nulls": 0,
+        "data_center_nulls": 0
+      },
+      "finished_counts": {
+        "race_web_articles": 731,
+        "race_news_districts": 20,
+        "local_news": 478,
+        "local_news_districts": 11,
+        "event_tokens": 455,
+        "events_with_states": 455,
+        "national_signals": 0,
+        "embedded_race_articles": 731,
+        "gini_nulls": 438,
+        "healthcare_nulls": 0,
+        "data_center_nulls": 0
+      },
+      "tasks": [
+        {
+          "name": "local news scrape",
+          "status": "timeout",
+          "duration_seconds": 1800.0,
+          "output_tail": ""
+        },
+        {
+          "name": "race-specific web scrape",
+          "status": "timeout",
+          "duration_seconds": 3600.0,
+          "output_tail": " [scrapers.race_web] Race GDELT failed for TX-34 query=\"Texas\" 34th congressional 2026 error=ConnectTimeout\n2026-04-27 06:22:49,071 WARNING [scrapers.race_web] Race GDELT failed for TX-34 query=\"Texas\" House race 2026 district 34 error=ConnectTimeout\n2026-04-27 06:23:02,174 WARNING [scrapers.race_web] Race GDELT failed for TX-34 query=\"Texas\" \"34\" congressional race 2026 error=ConnectTimeout\n2026-04-27 06:23:14,237 WARNING [scrapers.race_web] Race GDELT failed for AZ-02 query=\"Elijah Crane\" AZ congress 2026 error=ConnectTimeout\n2026-04-27 06:23:31,190 WARNING [scrapers.race_web] Race GDELT failed for AZ-02 query=\"Elijah Crane\" reelection 2026 error=ConnectTimeout\n2026-04-27 06:23:48,193 WARNING [scrapers.race_web] Race GDELT failed for AZ-02 query=\"Jonathan Michael Nez\" congress 2026 error=ConnectTimeout\n2026-04-27 06:24:05,204 WARNING [scrapers.race_web] Race GDELT failed for AZ-02 query=\"Eric Descheenie\" congress 2026 error=ConnectTimeout\n2026-04-27 06:24:15,070 WARNING [scrapers.race_web] Race GDELT failed for AZ-02 query=\"Matthew Gerald Heinz\" congress 2026 error=ConnectTimeout\n2026-04-27 06:24:26,028 WARNING [scrapers.race_web] Race GDELT failed for AZ-02 query=\"Eli Crane\" congress 2026 error=ConnectTimeout\n2026-04-27 06:24:37,046 WARNING [scrapers.race_web] Race GDELT failed for AZ-02 query=\"Arizona\" 2nd congressional 2026 error=ConnectTimeout\n2026-04-27 06:24:48,101 WARNING [scrapers.race_web] Race GDELT failed for AZ-02 query=\"Arizona\" House race 2026 district 2 error=ConnectTimeout\n2026-04-27 06:24:58,212 WARNING [scrapers.race_web] Race GDELT failed for AZ-02 query=\"Arizona\" \"2\" congressional race 2026 error=ConnectTimeout\n2026-04-27 06:25:10,174 WARNING [scrapers.race_web] Race GDELT failed for OH-01 query=\"Greg Landsman\" OH congress 2026 error=ConnectTimeout"
+        },
+        {
+          "name": "source intelligence scrape",
+          "status": "ok",
+          "duration_seconds": 227.2,
+          "output_tail": "headline='The Help That Many Older Americans Need Most' article_count=1\n2026-04-27 06:28:50,023 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Here\u2019s How Much San Francisco Tech Companies Pay for Police Protection' article_count=1\n2026-04-27 06:28:50,023 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline=\"China's Cleantech Machine Hits Top Gear as Oil Markets Crumble\" article_count=1\n2026-04-27 06:28:50,039 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Jeffries, James warn of voting rights threats at Detroit NAACP dinner' article_count=1\n2026-04-27 06:28:50,055 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='Meta inks deal for solar power at night, beamed from space' article_count=1\n2026-04-27 06:28:50,072 INFO [scrapers.source_intel] Source intelligence skipped low-confidence token headline='At Least The War Is Over' article_count=1\n2026-04-27 06:28:50,089 INFO [scrapers.source_intel] Event taxonomy reprocessed: 242 tokens; above threshold: 37\n2026-04-27 06:28:50,675 INFO [scrapers.source_intel] Event taxonomy reprocessed: 781 tokens; above threshold: 108; top=[('Civil rights organizations call for independent investigation into Michigan ICE detention center', 'social_event', 0.8), ('IEA\u2019s Birol Says Iran War Will Permanently Cut Into Future Oil Demand', 'conflict_escalation', 0.8), ('Federal immigration officer charged with assault over confrontation at Durango ICE protest', 'immigration_policy', 0.8), ('US citizens shot by ICE beg Congress to rein in federal immigration agents', 'immigration_policy', 0.8), ('US citizens shot by ICE beg Congress to rein in federal immigration agents', 'immigration_policy', 0.8)]"
+        },
+        {
+          "name": "backfill embeddings",
+          "status": "ok",
+          "duration_seconds": 13.4,
+          "output_tail": "[06:29:09] media_event_articles: embedded 50 rows\n[06:29:09] media_event_articles: embedded 100 rows\n[06:29:11] media_event_articles: embedded 200 rows\n[06:29:12] media_event_articles: embedded 300 rows\n[06:29:12] Embedding backfill complete: {'race_web_articles': 0, 'media_event_articles': 311, 'ideology_corpus_chunks': 0}\nWarning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n\nLoading weights:   0%|          | 0/103 [00:00<?, ?it/s]\nLoading weights: 100%|##########| 103/103 [00:00<00:00, 10747.67it/s]"
+        },
+        {
+          "name": "backfill event states",
+          "status": "ok",
+          "duration_seconds": 2.4,
+          "output_tail": "455 tokens updated\nevents with explicit states: 301\nnational signals: 91"
+        },
+        {
+          "name": "fill static features",
+          "status": "ok",
+          "duration_seconds": 1.1,
+          "output_tail": "Static feature fill updated 438 districts"
+        },
+        {
+          "name": "model-only training",
+          "status": "ok",
+          "duration_seconds": 13.9,
+          "output_tail": ": 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n\n=== LEAKAGE DIAGNOSTIC FOR TEST YEAR 2022 ===\nPVI rows using test/future year: 0\nmargin_t0 equals outcome rows: 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n\n=== LEAKAGE DIAGNOSTIC FOR TEST YEAR 2024 ===\nPVI rows using test/future year: 0\nmargin_t0 equals outcome rows: 0\nNational factors: historical constants by election year; no post-election latest-row pull in validation.\nFeature/outcome overlap: outcome column is excluded from FEATURE_NAMES and THEORY_FEATURES.\n[06:29:30] OK Model training complete in 0.2 min\n[06:29:30] Model trained on 2988 historical races across 9 election cycles\n[06:29:30] OK Overnight summary written\n[06:29:30] OK All requested overnight work complete\n2026-04-27 06:29:18,765 INFO [db.connection] DuckDB initialized at data\\tapestry.duckdb\n2026-04-27 06:29:18,856 INFO [db.connection] DuckDB initialized at data\\tapestry.duckdb\n2026-04-27 06:29:18,912 INFO [model.features] Feature imputation summary: gini_coefficient: 435 districts used national/default avg, income_growth_2yr: 435 districts used national/default avg, incumbent_years: 5 districts used national/default avg, margin_t0: 6 districts used national/default avg, net_hiring_trend: 435 districts used national/default avg, population_density: 435 districts used national/default avg, recent_layoffs: 435 districts used national/default avg, tech_employment_share: 435 districts used national/default avg (run census/FEC scrapers to fill these gaps)"
+        },
+        {
+          "name": "coverage report",
+          "status": "ok",
+          "duration_seconds": 0.8,
+          "output_tail": "TAPESTRY COVERAGE REVIEW\n========================\nhouse_roster rows: 435\ncandidate_roster_2026 rows: 3355\ndistrict_forecasts rows: 1305\nrace_web_articles rows: 731\ndistricts with race articles: 20\nlocal_news rows: 478\ndistricts with local news: 11\nmedia_event_articles rows: 7211\nevent_tokens rows: 455\nevents above threshold: 66\nevents with affected_states: 455\nnational signals: 0\n\nFEATURE COVERAGE\n----------------\ngini_coefficient nulls: 438\ngini_coefficient distinct non-null: 0\nhealthcare_cost_burden nulls: 0\nhealthcare_cost_burden distinct non-null: 50\ndata_center_mw_planned nulls: 0\ndata_center_mw_planned distinct non-null: 16\nincumbent_years nulls: 8\nincumbent_years distinct non-null: 3\n\nSANITY CANDIDATES\n-----------------\nAZ-06: ('AZ-06', 'Juan Ciscomani', 'R')\nCA-30: ('CA-30', 'Laura Friedman', 'D')\n\nMODEL REPORT\n------------\nmodel_version: overnight_2026-04-27\ntraining_examples: 2988\nmissing_value_rate: 0.010060443795383555\ntop_features:\n  incumbency_advantage: 0.0962\n  white_pct: 0.0656\n  cook_pvi: 0.0521\n  media_x_anti: 0.0515\n  healthcare_cost_burden: 0.0514\n  black_pct: 0.0474\n  data_center_opposition_score: 0.0470\n  uninsured_rate: 0.0435\n  college_realignment_interaction: 0.0428\n  rent_burden_pct: 0.0427\n  college_educated_pct: 0.0412\n  independent_media_penetration: 0.0408\n  median_income_real: 0.0393\n  local_news_intensity: 0.0359\n  medical_debt_x_approval: 0.0355"
+        }
+      ]
+    }
+  ],
+  "latest_counts": {
+    "race_web_articles": 731,
+    "race_news_districts": 20,
+    "local_news": 478,
+    "local_news_districts": 11,
+    "event_tokens": 455,
+    "events_with_states": 455,
+    "national_signals": 0,
+    "embedded_race_articles": 731,
+    "gini_nulls": 438,
+    "healthcare_nulls": 0,
+    "data_center_nulls": 0
+  },
+  "log_path": "C:\\Users\\pdc\\Documents\\Codex\\2026-04-24\\build-a-full-screen-interactive-us\\tapestry-backend\\data\\logs\\continuous_train_2026-04-27.log"
+}

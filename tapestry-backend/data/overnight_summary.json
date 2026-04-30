@@ -1,0 +1,38 @@
+{
+  "run_date": "2026-04-29",
+  "started_at": "2026-04-29T23:16:53.800949+00:00",
+  "completed_at": "2026-04-29T23:17:04.324017+00:00",
+  "duration_minutes": 0,
+  "steps": [],
+  "model_performance": {
+    "brier_2020": 0.08071043238634676,
+    "brier_2022": 0.09415157929384342,
+    "brier_2024": 0.08893553950474738,
+    "baseline_brier_2024": 0.10967455934123381,
+    "improvement_2024": 0.020739019836486433,
+    "optimal_decay_rate": 0.9,
+    "top_features": [
+      "media_x_anti",
+      "incumbency_advantage",
+      "white_pct",
+      "cook_pvi",
+      "healthcare_cost_burden",
+      "rent_burden_pct",
+      "independent_media_penetration",
+      "local_news_intensity",
+      "gini_coefficient",
+      "black_pct"
+    ],
+    "status": "complete"
+  },
+  "data_completeness": {
+    "districts_with_census": 438,
+    "districts_with_fec": 457,
+    "districts_with_news": 11,
+    "districts_with_race_news": 160,
+    "districts_with_kalshi": 0,
+    "districts_with_full_data": 435,
+    "total_districts": 435
+  },
+  "warnings": []
+}

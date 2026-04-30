@@ -1,0 +1,806 @@
+TAPESTRY SOURCE AND DATA AUDIT
+Generated: 2026-04-26
+Workspace: C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us
+
+Purpose
+-------
+This file lists every known source and form of information TAPESTRY uses, including:
+- visible data shown in the UI/API
+- invisible model features and embeddings
+- cached scraper inputs
+- model-generated forecasts/narratives
+- known proxy/manual/imputed fields that need scrutiny
+
+This is meant to help audit what is real, what is derived, and what may still be fake-ish, stale, imputed, or only a rough proxy.
+
+
+QUICK RUN COMMANDS
+------------------
+
+Backend folder:
+  cd /d C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend
+
+Normal overnight run:
+  run_overnight.bat
+
+Equivalent direct command:
+  .venv\Scripts\python.exe overnight.py --skip-slow-trends
+
+Continuous "set it and forget it" loop:
+  run_continuous_training.bat
+
+Equivalent direct command:
+  .venv\Scripts\python.exe continuous_train.py --sleep-minutes 20 --race-thresholds 20,30,99
+
+Stop the continuous loop:
+  Press Ctrl+C in the terminal.
+
+Model-only retrain:
+  .venv\Scripts\python.exe overnight.py --model-only
+
+Force a fresh run, ignoring cache where supported:
+  .venv\Scripts\python.exe overnight.py --force --skip-slow-trends
+
+News/data pass without the very slow trends step:
+  .venv\Scripts\python.exe overnight.py --skip-slow-trends
+
+Useful reports after a run:
+  data\overnight_summary.json
+  data\continuous_train_summary.json
+  data\candidate_sanity_report.txt
+  data\logs\
+
+
+CURRENT DATABASE COUNTS
+-----------------------
+
+house_roster: 435
+candidate_roster_2026: 3355
+incumbent_status_2026: 60
+twoseventy_house_context: 56
+election_results: 10857
+district_features: 438
+fec_candidate_finance: 3321
+local_news: 478 rows across 11 districts
+race_web_articles: 731 rows across 20 districts
+media_event_articles: 6323
+media_signal_summary: 344
+event_tokens: 286
+ideology_corpus_chunks: 3110
+kalshi_market_mapping: 0
+polymarket_market_mapping: 1
+chamber_forecasts: 4
+district_forecasts: 870
+national_factors: 2
+conflict_states: 1
+data_quality: 25
+politician_integrity_signals: 4
+
+Important current data-quality flags:
+- gini_coefficient is still NULL for 438 district_features rows.
+- healthcare_cost_burden is populated, but from a CMS state-level proxy table, not district-specific raw data.
+- data_center_mw_planned is populated, but from a state-level proxy table, not district-specific raw data.
+- Kalshi currently has 0 mapped market rows.
+- Polymarket currently has 1 stored market row; House D control may be a manual/seeded market if the API did not return it live.
+
+
+VISIBLE API ENDPOINTS / UI DATA
+-------------------------------
+
+Frontend:
+  http://localhost:5173
+
+Backend root:
+  http://localhost:8000
+
+Backend docs:
+  http://localhost:8000/docs
+
+Visible API endpoints:
+  /api/morning-brief
+  /api/national
+  /api/chambers
+  /api/states
+  /api/districts
+  /api/districts/summary
+  /api/districts/{district_id}
+  /api/districts/{district_id}/news
+  /api/districts/{district_id}/transparency
+  /api/events
+  /api/events?state=CA&limit=5
+  /api/events?district=CA-04&limit=5
+  /api/conflicts
+  /api/kalshi/gaps
+  /api/market/gaps
+
+Visible frontend sections and their sources:
+- National map: /api/states and /api/districts, rendered with CD118 congressional district TopoJSON.
+- State zoom map: CD118 district TopoJSON plus forecast data from /api/districts.
+- Top bar generic ballot / approval / days to election: /api/national plus client-side election-day calculation.
+- Chamber control bars: /api/chambers.
+- Market gap rows: /api/market/gaps and /api/chambers.
+- Top competitive races: /api/districts sorted by closeness to 50/50.
+- District race status: /api/districts/{district_id}.
+- Candidate names: house_roster and candidate_roster_2026 via /api/districts/{district_id}.
+- FEC finance display: fec_candidate_finance and candidate_quality via /api/districts/{district_id}.
+- District signals: district_features via /api/districts/{district_id}.
+- Race/local news: local_news plus race_web_articles via /api/districts/{district_id}/news.
+- Intelligence feed: /api/events, scoped by state or district after recent fix.
+- Morning brief modal/page: data/morning_brief.json plus chamber_forecasts, event_tokens, market gap data.
+
+
+OFFICIAL / AUTHORITATIVE ROSTER AND ELECTION DATA
+-------------------------------------------------
+
+House Clerk XML:
+  URL: https://clerk.house.gov/xml/lists/MemberData.xml
+  Loader: tapestry-backend\data\historical\load_roster.py
+  Database: house_roster
+  Status: real official roster source.
+
+House Clerk member pages:
+  Pattern: https://clerk.house.gov/members/{bioguide_id}
+  Loader: load_roster.py
+  Database fields: incumbent_url, incumbent_bioguide_id.
+  Status: real official source.
+
+MIT Election Lab / Harvard Dataverse House results:
+  User-provided files included historical House data.
+  Expected local path: data\historical\mit_house_results.csv
+  Loader: tapestry-backend\data\historical\load_historical.py
+  Database: election_results
+  Status: real historical election results if local file is present.
+  Note: do not auto-download; Dataverse can require browser session.
+
+FEC bulk candidate file:
+  User local file: C:\Users\pdc\Downloads\weball26.zip
+  Public URL attempted: https://www.fec.gov/files/bulk-downloads/2026/weball26.zip
+  Loader: tapestry-backend\data\historical\load_fec_weball.py
+  Database: fec_candidate_finance and candidate_roster_2026 enrichment
+  Status: real FEC bulk source. Local copy is the reliable path when public download fails.
+
+FEC API:
+  Base: https://api.open.fec.gov/v1
+  Uses: FEC_API_KEY from .env, falling back to DEMO_KEY only if absent.
+  Scraper: tapestry-backend\scrapers\fec_scraper.py
+  Database: candidate_quality and/or FEC totals caches.
+  Status: real official source, rate-limited.
+
+Candidate audit:
+  Script: tapestry-backend\data\historical\audit_candidates.py
+  Reports:
+    data\candidate_sanity_report.txt
+    data\candidate_sanity_report.json
+  Status: internal consistency checker, not an external source.
+
+
+DISTRICT DEMOGRAPHICS / ECONOMIC FEATURES
+-----------------------------------------
+
+Census ACS 2023 5-year API:
+  URL: https://api.census.gov/data/2023/acs/acs5
+  API key: CENSUS_API_KEY in .env, optional but set.
+  Scraper: tapestry-backend\scrapers\census_scraper.py
+  Cache: data\raw\census_{state_fips}.json and data\raw\census_district_features_latest.parquet
+  Database: district_features
+  Real fields:
+    median_income_real from B19013_001E
+    college_educated_pct from B15003_022E / B15003_001E
+    median_age from B01002_001E
+    white_pct from B02001_002E
+    black_pct from B02001_003E
+    hispanic_pct from B03001_003E
+    median rent from B25064_001E
+    uninsured_rate from B27010_033E / B27010_001E
+    rent_burden_pct derived from rent and income
+  Audit flag:
+    gini_coefficient should come from B19083_001E but is currently still NULL for all district_features rows.
+
+Census ACS 2021 5-year API:
+  Intended use: income_growth_2yr from 2021 to 2023 median income.
+  Status: optional / not fully verified as populated.
+
+Static feature fill:
+  Script: tapestry-backend\scripts\fill_static_features.py
+  Database: district_features
+  Status: proxy/inferred, not district-specific raw source.
+  Fields:
+    data_center_mw_planned: state-level lookup based on LBNL-style data center capacity approximation.
+    data_center_opposition_score: state-level lookup based on broad local-opposition assumptions.
+    healthcare_cost_burden: state-level normalized proxy using CMS state health expenditure style per-capita values.
+    incumbent_years: derived from house_roster incumbent_first_elected.
+  Audit flag:
+    These are not fake names or fake dollars, but they are state-level proxies and should be labeled beta/model feature proxies.
+
+BLS QCEW tech employment:
+  Intended source: https://data.bls.gov/cew/data/api/{year}/{quarter}/industry/{NAICS}/county/all/county_all.csv
+  Intended fields: tech_employment_share
+  Status: optional / not confirmed populated.
+
+Layoffs.fyi / layoffs news proxy:
+  Intended source: https://layoffs.fyi or Google/NewsAPI query fallback.
+  Intended field: recent_layoffs_90d
+  Status: optional / not confirmed populated.
+
+
+NATIONAL ECONOMIC AND POLLING DATA
+----------------------------------
+
+FRED:
+  Scraper: tapestry-backend\scrapers\fred_scraper.py
+  API key: FRED_API_KEY in .env.
+  Cache: data\raw\fred_all.parquet and dated parquet outputs.
+  Database: national_factors
+  Real series intent:
+    unemployment
+    CPI / inflation
+    real income / wages
+    mortgage rates
+    consumer sentiment as approval proxy
+  Audit flag:
+    Only 2 national_factors rows currently exist, so coverage is thin.
+
+EIA gas prices:
+  URL: https://www.eia.gov/petroleum/gasdiesel/
+  Scraper: tapestry-backend\scrapers\eia_gas_scraper.py
+  Cache: data\raw\eia_gas_latest.parquet
+  Database: national_factors
+  Status: real public source, currently lightweight.
+
+BLS grocery / egg prices:
+  URL: https://api.bls.gov/publicAPI/v2/timeseries/data/
+  Scraper: tapestry-backend\scrapers\bls_grocery_scraper.py
+  Cache: data\raw\bls_grocery_latest.parquet
+  Database: national_factors
+  Series intent:
+    Food at home
+    Eggs
+    Ground beef
+    Bread
+  Status: real public source.
+
+FiveThirtyEight polling archive:
+  URLs:
+    https://raw.githubusercontent.com/fivethirtyeight/data/master/polls/generic-ballot-polls.csv
+    https://raw.githubusercontent.com/fivethirtyeight/data/master/congress-generic-ballot/generic_ballot_averages.csv
+  Runner: overnight.py historical polling archive step.
+  Status: best-effort; latest overnight had 0 rows for this step.
+
+RealClearPolling generic ballot:
+  Intended URL: https://www.realclearpolling.com/polls/congress/generic-ballot
+  Status: intended/optional, not confirmed populated.
+
+
+MARKET DATA
+-----------
+
+Kalshi:
+  Base URL: https://trading-api.kalshi.com/trade-api/v2
+  Auth: RSA key pair from KALSHI_ACCESS_KEY_ID and KALSHI_PRIVATE_KEY_PATH in .env.
+  Scraper: tapestry-backend\scrapers\kalshi_scraper.py
+  Database: kalshi_market_mapping and chamber_forecasts.kalshi_price
+  Current count: kalshi_market_mapping = 0
+  Audit flag:
+    Kalshi is configured but currently not producing mapped market rows. Treat displayed Kalshi prices as unavailable unless table count increases.
+
+Polymarket:
+  Base URL: https://clob.polymarket.com
+  API key: POLYMARKET_API_KEY in .env, but price reads may work without auth.
+  Scraper: tapestry-backend\scrapers\polymarket_scraper.py
+  Database: polymarket_market_mapping and chamber_forecasts.polymarket_price
+  Current count: polymarket_market_mapping = 1
+  Audit flag:
+    Scraper has a manual seed for House D 2026 at 0.86 if API fetch returns no usable market. The audit should verify whether the row is live API data or seed/manual before treating it as market truth.
+
+
+LOCAL AND RACE-SPECIFIC NEWS
+----------------------------
+
+Local news table:
+  Database: local_news
+  Scraper: tapestry-backend\scrapers\local_news_scraper.py
+  Current count: 478 rows across 11 districts.
+  Sources:
+    NewsAPI state queries using NEWSAPI_KEY.
+    Local/state RSS feeds.
+    Google News RSS.
+    GDELT DOC API best-effort.
+  Audit flag:
+    Coverage is still sparse; many districts have no local_news rows.
+
+Race-specific web articles:
+  Database: race_web_articles
+  Scraper: tapestry-backend\scrapers\race_web_scraper.py
+  Current count: 731 rows across 20 districts.
+  Sources:
+    NewsAPI candidate/district queries.
+    Google News RSS candidate/district queries.
+    GDELT DOC API candidate queries.
+    Ballotpedia race pages.
+  Audit flag:
+    Coverage is still concentrated in a minority of districts.
+
+GDELT DOC API:
+  URL: https://api.gdeltproject.org/api/v2/doc/doc
+  Used by:
+    local_news_scraper.py
+    race_web_scraper.py
+    source_intel_scraper.py
+  Status: real public source, but frequently times out / SSL fails. Pipeline skips on failures.
+
+NewsAPI:
+  URL: https://newsapi.org/v2/everything
+  API key: NEWSAPI_KEY in .env.
+  Used by:
+    local_news_scraper.py
+    race_web_scraper.py
+  Status: real source aggregator, subject to plan limits and source coverage.
+
+Google News RSS:
+  URL pattern: https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en
+  Used by:
+    local_news_scraper.py
+    race_web_scraper.py
+  Status: real public RSS endpoint, can rate-limit.
+
+Ballotpedia:
+  General House 2026 page:
+    https://ballotpedia.org/United_States_House_of_Representatives_elections,_2026
+  Race page pattern:
+    https://ballotpedia.org/{State}_{N}th_congressional_district,_2026
+  Scrapers:
+    ballotpedia_scraper.py
+    race_web_scraper.py
+    load_roster.py
+  Database:
+    candidate_roster_2026
+    race_web_articles
+  Status: real public source, extraction can be imperfect.
+
+
+LOCAL RSS FEEDS USED BY LOCAL NEWS
+----------------------------------
+
+Priority-state feeds include:
+  AZ: Arizona Republic, 12News Phoenix
+  NV: Las Vegas Review-Journal, KTNV
+  PA: Pittsburgh Post-Gazette, PennLive
+  WI: Milwaukee Journal Sentinel, WISC-TV
+  MI: Detroit Free Press, MLive
+  GA: Atlanta Journal-Constitution, WSB-TV
+  NC: Charlotte Observer, WRAL
+  OH: Cleveland Plain Dealer, Columbus Dispatch
+  MT: Billings Gazette, KTVQ
+  NH: Union Leader, WMUR
+  ME: Portland Press Herald, WGME
+  CO: Denver Post, 9News
+  VA: Richmond Times-Dispatch, WTVR
+  TX: Houston Chronicle, Dallas Morning News
+  FL: Tampa Bay Times, Miami Herald
+
+Default/statewide feeds include:
+  AL.com, Anchorage Daily News, Arkansas Democrat-Gazette, Los Angeles Times, CT Mirror,
+  Delaware Online, Honolulu Civil Beat, Idaho Statesman, Chicago Sun-Times, IndyStar,
+  Des Moines Register, Kansas Reflector, Louisville Courier Journal, NOLA.com,
+  Maryland Matters, Boston Globe, MinnPost, Mississippi Today, St. Louis Post-Dispatch,
+  Nebraska Examiner, NJ.com, Santa Fe New Mexican, Gothamist, North Dakota Monitor,
+  Oklahoma Voice, Oregon Capital Chronicle, Rhode Island Current, The State,
+  South Dakota Searchlight, Tennessee Lookout, Salt Lake Tribune, VTDigger,
+  Seattle Times, West Virginia Watch, WyoFile.
+
+Independent/national feeds also included in local news:
+  Drop Site News
+  Drop Site News Podcast
+  The Intercept
+  The Intercept Politics
+  The Lever
+  Axios Politics
+
+
+SOURCE INTELLIGENCE / EVENT TOKENS
+----------------------------------
+
+Source intelligence table:
+  Database:
+    media_event_articles
+    media_signal_summary
+    event_tokens
+  Scraper:
+    tapestry-backend\scrapers\source_intel_scraper.py
+  Current:
+    media_event_articles = 6323
+    media_signal_summary = 344
+    event_tokens = 286
+  Status:
+    Real RSS/GDELT article ingestion plus NLP/tagging/model-derived event tokens.
+
+National/independent/establishment feeds used by source intelligence:
+  Drop Site News
+  The Intercept
+  The Lever
+  ProPublica
+  Reveal
+  Sludge
+  Jacobin
+  The American Prospect
+  Reason
+  The Bulwark
+  Punchbowl News
+  Politico Congress
+  Axios Politics
+  NPR Politics
+  PBS NewsHour Politics
+  AP Politics
+  Reuters Politics
+  Roll Call
+  OpenSecrets News
+  Robert Pape - Escalation Trap
+  Eschaton
+  Defense One
+  War on the Rocks
+  OilPrice
+  Inside Climate News
+  KFF Health News
+  Fierce Healthcare
+  Stat News
+  EdSurge
+  Route Fifty
+  Governing
+  TechCrunch AI
+  Wired
+
+State/local source-intel feeds:
+  Arizona Mirror
+  Nevada Current
+  Pennsylvania Capital-Star
+  Wisconsin Examiner
+  Michigan Advance
+  Georgia Recorder
+  NC Newsline
+  Ohio Capital Journal
+  Montana Free Press
+  New Hampshire Bulletin
+  Maine Beacon
+  Colorado Newsline
+  Virginia Mercury
+  Texas Tribune
+  Florida Phoenix
+  CalMatters
+  New York Focus
+
+Event taxonomy:
+  Categories are model/keyword-derived:
+    economic_shock
+    conflict_escalation
+    scandal_corruption
+    scandal_personal
+    social
+    immigration
+    healthcare
+    campaign_event
+    technology
+    anti_establishment
+    policy_reversal
+    news_signal
+  Status:
+    Derived from article text, source credibility, source_count, and salience.
+  Audit flag:
+    Event categories are not hand-verified facts. They are classifier labels and can be wrong.
+
+Event geography:
+  Script: tapestry-backend\scripts\backfill_event_states.py
+  API: /api/events with state/district filters
+  Status:
+    State/district scoping was fixed so Michigan ICE stories should not appear for California.
+  Audit flag:
+    Geographic inference still depends on headline/source text and can miss ambiguous stories.
+
+Integrity pressure:
+  Database: politician_integrity_signals
+  Count: 4
+  Source: derived from source intelligence articles and event scoring.
+  Status:
+    Experimental, should require corroboration/source gates before UI display.
+  Audit flag:
+    This is an inferred reputational pressure score, not an official fact.
+
+
+INCUMBENT STATUS / RETIREMENTS / 270TOWIN
+-----------------------------------------
+
+Incumbent retirements/status:
+  Scraper: tapestry-backend\scrapers\incumbent_status_scraper.py
+  Sources:
+    270toWin retirements page: https://www.270towin.com/2026-house-election-find/2026-retirements
+    NPR/KPBS retirement list URL in code
+  Database: incumbent_status_2026
+  Current count: 60
+  Status: real scraped source, but must be periodically refreshed.
+
+270toWin House race context:
+  Scraper: tapestry-backend\scrapers\twoseventy_house_scraper.py
+  Source: https://www.270towin.com/2026-house-election-find/2026-retirements
+  Database: twoseventy_house_context
+  Current count: 56
+  Status: real public context scrape.
+
+
+IDEOLOGY CORPUS / EMBEDDINGS
+----------------------------
+
+Ideology corpus:
+  Scraper: tapestry-backend\scrapers\ideology_corpus_scraper.py
+  Database: ideology_corpus_chunks
+  Current count: 3110 chunks
+  Embedding model: sentence-transformers all-MiniLM-L6-v2
+  Status:
+    Public-domain text corpus used for ideological frame similarity, not direct election facts.
+
+Project Gutenberg sources:
+  Communist Manifesto - Marx and Engels
+  Wage Labour and Capital - Marx
+  The Jungle - Upton Sinclair
+  On Liberty - John Stuart Mill
+  Wealth of Nations Vol. 1 - Adam Smith
+  Common Sense - Thomas Paine
+  Rights of Man - Thomas Paine
+  The Federalist Papers - Hamilton, Madison, Jay
+  Anti-Federalist Papers
+  Democracy in America Vol. 1 - Tocqueville
+  Twenty Years at Hull-House - Jane Addams
+  The Souls of Black Folk - W. E. B. Du Bois
+
+Embeddings:
+  Utility: tapestry-backend\utils\embeddings.py
+  Backfill script: tapestry-backend\utils\backfill_embeddings.py
+  Tables:
+    race_web_articles.embedding
+    media_event_articles.embedding
+    ideology_corpus_chunks.embedding
+  Status:
+    Invisible/model-only vector representation of text.
+  Audit flag:
+    Embeddings are opaque derived features, not inspectable facts.
+
+
+FOREIGN POLICY / CONFLICT SIGNALS
+---------------------------------
+
+Robert Pape / Escalation Trap:
+  URL: https://escalationtrap.substack.com/
+  Feed: https://escalationtrap.substack.com/feed
+  Scraper: tapestry-backend\scrapers\pape_scraper.py
+  Database/cache:
+    conflict_states
+    data\raw\pape_escalation_latest.parquet
+  Status: real public source, transformed into conflict-stage signals.
+
+Voteview DW-NOMINATE:
+  URL: https://voteview.com/static/data/out/members/HSall_members.csv
+  Runner: overnight.py DW-NOMINATE step
+  Database: national_factors / polarization derived features
+  Status: real public CSV, derived into polarization metrics.
+
+
+SCRAPERS THAT ARE EMPTY, DISCONTINUED, OR PLACEHOLDER-LIKE
+----------------------------------------------------------
+
+OpenSecrets:
+  Scraper: tapestry-backend\scrapers\opensecrets_scraper.py
+  Current behavior:
+    Logs that no free authenticated source is configured and returns no donor_transparency rows.
+  Important:
+    OpenSecrets public API was discontinued. Treat OpenSecrets API data as unavailable unless a custom/export file is supplied.
+
+Cook Political PVI:
+  Loader has URL: https://www.cookpolitical.com/cook-pvi/2025-partisan-voting-index/house-map
+  Problem:
+    Cook PVI data is paid/restricted.
+  Current project behavior:
+    Uses TAPESTRY PVI built from MIT/historical results rather than official Cook PVI.
+  Audit flag:
+    Any field named cook_pvi_numeric may be TAPESTRY PVI substitute unless official Cook data was successfully loaded. Verify data_source/notes before calling it Cook PVI.
+
+Kalshi:
+  Configured but current mapping count is 0.
+  Treat Kalshi prices as missing/unavailable until scraper produces rows.
+
+Historical polling archive:
+  Last overnight step returned 0 rows.
+  Treat polling archive features as missing/thin unless cache count improves.
+
+
+MODEL AND DERIVED OUTPUTS
+-------------------------
+
+District forecasts:
+  Database: district_forecasts
+  Visible through: /api/districts and /api/districts/{district_id}
+  Contains:
+    leading_candidate
+    leading_party
+    projected_margin
+    uncertainty
+    win_probability_d
+    factor_attribution JSON
+    narrative
+    kalshi/model price fields
+  Status:
+    Model output. Not a raw fact.
+
+Chamber forecasts:
+  Database: chamber_forecasts
+  Visible through: /api/chambers and morning brief
+  Contains:
+    D control probability
+    expected seats
+    forecast uncertainty
+    Kalshi/Polymarket prices when available
+  Status:
+    Model output, plus market comparison fields.
+
+Morning brief:
+  File: data\morning_brief.json
+  Visible through: /api/morning-brief
+  Contains:
+    chamber summary
+    top moves
+    active_events
+    market watch
+    narrative
+  Status:
+    Generated summary assembled from model outputs and event tokens.
+
+Narratives:
+  Generated in model/retrainer.py and/or model/overnight_trainer.py.
+  Status:
+    Template/model-written explanatory text. It should not invent candidate names or facts. Audit any suspicious sentence against the fields feeding it.
+
+Walk-forward validation:
+  File: data\models\validation_results.json
+  Status:
+    Corrected leakage previously. Last known 2024 competitive Brier was about 0.135.
+  Audit flag:
+    Any future surprisingly tiny Brier score below about 0.10 on competitive races should trigger leakage audit.
+
+
+KNOWN "REAL VS FAKE" AUDIT FINDINGS
+-----------------------------------
+
+Real / authoritative:
+  House Clerk roster
+  FEC bulk finance rows
+  MIT Election Lab historical House results
+  Census ACS raw demographics where populated
+  FRED/EIA/BLS public economic feeds
+  Voteview DW-NOMINATE CSV
+  News/RSS/GDELT/NewsAPI article headlines and URLs
+
+Real but scraper/extraction quality can vary:
+  Ballotpedia candidate/race extraction
+  270toWin context and retirements
+  Google News RSS
+  GDELT results
+  NewsAPI results
+  RSS feed parsing
+
+Derived/model output:
+  District win probabilities
+  Chamber control probabilities
+  Projected margins
+  Uncertainty
+  Factor attribution
+  Morning brief narrative
+  Event token categories
+  Integrity pressure
+  Ideology alignment
+  Embeddings
+
+Proxy/manual/beta:
+  TAPESTRY PVI substitute when official Cook PVI is unavailable.
+  data_center_mw_planned state-level proxy.
+  data_center_opposition_score state-level proxy.
+  healthcare_cost_burden state-level proxy.
+  Polymarket House D 0.86 may be manual seed if API discovery failed.
+  national_factors are thin: only 2 rows currently.
+
+Still missing / imputed:
+  gini_coefficient: 438 nulls.
+  income_growth_2yr may still be imputed unless 2021 ACS comparison is loaded.
+  population_density may still be proxy/imputed.
+  tech_employment_share may still be imputed unless BLS QCEW loader is completed.
+  recent_layoffs may still be imputed/proxy.
+  Kalshi market mappings are currently empty.
+  Race news covers only 20 districts.
+  Local news covers only 11 districts.
+
+Acceptable UI fallback labels:
+  Roster not yet available
+  Not yet available
+  Data pending
+  Race coverage loading
+  Local news loading
+  unavailable
+  em dash
+
+Bad/fake patterns to keep hunting:
+  Generated fake bios.
+  Generated fake fundraising amounts.
+  Generated fake candidate names.
+  Fake/example.com news rows.
+  National/global stories shown as district-specific without proper geography.
+  Candidate rows from the wrong district.
+  Same-year election results used as model features.
+
+
+FILES TO AUDIT FIRST WHEN SOMETHING LOOKS FAKE
+----------------------------------------------
+
+Frontend display:
+  App.jsx
+  components\LeftPanel.jsx
+  components\RightPanel.jsx
+  components\MorningBriefModal.jsx
+  src\api.js
+  tapestry.css
+
+District/candidate API:
+  tapestry-backend\api\routes\districts.py
+  tapestry-backend\api\schemas.py
+
+Events API:
+  tapestry-backend\api\routes\scandals.py
+  tapestry-backend\scripts\backfill_event_states.py
+  tapestry-backend\scrapers\source_intel_scraper.py
+
+News:
+  tapestry-backend\scrapers\local_news_scraper.py
+  tapestry-backend\scrapers\race_web_scraper.py
+
+Roster/candidates:
+  tapestry-backend\data\historical\load_roster.py
+  tapestry-backend\data\historical\audit_candidates.py
+  tapestry-backend\data\historical\load_fec_weball.py
+
+Model:
+  tapestry-backend\model\features.py
+  tapestry-backend\model\walk_forward.py
+  tapestry-backend\model\overnight_trainer.py
+  tapestry-backend\model\retrainer.py
+
+Pipeline:
+  tapestry-backend\overnight.py
+  tapestry-backend\continuous_train.py
+  tapestry-backend\run_overnight.bat
+  tapestry-backend\run_continuous_training.bat
+
+Static/proxy features:
+  tapestry-backend\scripts\fill_static_features.py
+
+
+RECOMMENDED NEXT AUDIT STEPS
+----------------------------
+
+1. Run continuous training for a long pass:
+     cd /d C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend
+     run_continuous_training.bat
+
+2. In the morning, check:
+     data\continuous_train_summary.json
+     data\logs\
+     data\candidate_sanity_report.txt
+
+3. Run coverage review:
+     .venv\Scripts\python.exe scripts\review_coverage.py
+
+4. Check whether coverage improved:
+     race_web_articles distinct districts should rise above 20.
+     local_news distinct districts should rise above 11.
+
+5. Fix remaining hard imputation:
+     gini_coefficient is the clearest current miss because it should come directly from Census ACS B19083_001E.
+
+6. Verify market data:
+     Kalshi still needs mapped markets.
+     Polymarket House D price needs confirmation as live API data vs manual seed.
+

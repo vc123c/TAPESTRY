@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: tapestry-api
+    env: python
+    buildCommand: pip install -r requirements_serve.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_PATH
+        value: ./data/tapestry_demo.duckdb
+      - key: ENVIRONMENT
+        value: production

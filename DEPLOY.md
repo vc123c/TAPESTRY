@@ -1,0 +1,112 @@
+# TAPESTRY Deployment
+
+## Step 1: Export Demo Database
+
+Run locally:
+
+```bat
+cd tapestry-backend
+python scripts/export_demo_db.py
+```
+
+This creates `data/tapestry_demo.duckdb`. The demo database strips embedding BLOB columns that are only needed for training, while preserving forecast, roster, FEC, Census, article metadata, event, market, and morning-brief serving data.
+
+Latest local export:
+
+- Full DB: ~180 MB
+- Demo DB: ~28 MB
+
+## Step 2: Deploy Backend To Render
+
+1. Go to [Render](https://render.com) and create a free account.
+2. Click **New** -> **Web Service**.
+3. Connect the GitHub repository.
+4. Configure:
+   - Root directory: `tapestry-backend`
+   - Build command: `pip install -r requirements_serve.txt`
+   - Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - Instance type: Free
+5. Add environment variables:
+   - `DATABASE_PATH=./data/tapestry_demo.duckdb`
+   - `ENVIRONMENT=production`
+6. Database option for submission:
+   - Simplest: commit `tapestry-backend/data/tapestry_demo.duckdb`.
+   - If GitHub rejects the file, use Git LFS:
+
+```bat
+git lfs install
+git lfs track "*.duckdb"
+git add .gitattributes
+git add -f tapestry-backend/data/tapestry_demo.duckdb
+git commit -m "Add demo database for Render deployment"
+```
+
+7. Create the web service.
+8. Note the backend URL, for example:
+
+```text
+https://tapestry-api.onrender.com
+```
+
+Render free tier may spin down after inactivity. First request after spin-down can take around 30 seconds.
+
+## Step 3: Configure Frontend API URL
+
+For Vercel, set:
+
+```text
+VITE_API_URL=https://your-render-url.onrender.com
+```
+
+The checked-in `.env.production` currently uses:
+
+```text
+VITE_API_URL=https://tapestry-api.onrender.com
+```
+
+Update this after Render gives the actual URL.
+
+## Step 4: Deploy Frontend To Vercel
+
+1. Go to [Vercel](https://vercel.com).
+2. Click **Add New** -> **Project**.
+3. Import the GitHub repository.
+4. Configure:
+   - Root Directory: project root
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+5. Add environment variable:
+   - `VITE_API_URL=https://your-render-url.onrender.com`
+6. Deploy.
+
+The frontend can also be deployed with the Vercel plugin from this workspace once the backend URL is final.
+
+## Step 5: Test Deployment
+
+Open the Vercel URL and verify:
+
+- Splash screen loads.
+- Map renders with state colors.
+- Zoom into a state shows congressional districts.
+- Click AZ-06 -> Juan Ciscomani appears.
+- Click CA-30 -> Laura Friedman appears.
+- Chamber panel shows House D control around 77%.
+- Morning brief shows `data_current_as_of: 2026-04-29`.
+
+Check backend directly:
+
+```text
+https://your-render-url.onrender.com/api/chambers
+https://your-render-url.onrender.com/api/districts/AZ-06
+https://your-render-url.onrender.com/api/morning-brief
+```
+
+Expected:
+
+- `/api/chambers` returns House D control around 0.773 and Polymarket 0.86.
+- `/api/districts/AZ-06` returns Juan Ciscomani.
+- `/api/morning-brief` returns `data_current_as_of: 2026-04-29`.
+
+## Submission Note
+
+Backend may take up to 30 seconds to respond on first visit due to Render free-tier spin-down. Refresh the page if the map appears empty on first load.

@@ -1,0 +1,255 @@
+TAPESTRY HANDOFF FOR CLAUDE
+Generated in workspace:
+C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us
+
+PROJECT GOAL
+TAPESTRY is a React + FastAPI political intelligence dashboard for the 2026 House/midterm cycle.
+The major direction changed from a polished mock dashboard to a real-data-first system:
+no fake candidate names, no fake fundraising, no fake local news, no fake bios.
+Missing data should show as pending/null instead of invented text.
+
+
+FRONTEND
+Main file:
+C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\App.jsx
+
+API integration file:
+C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\src\api.js
+
+What changed:
+- Rebranded from PRECINCT to TAPESTRY.
+- Added tagline: "the country, woven together".
+- Added intro splash with TAPESTRY logo and audio.
+- Added woven/thread visual styling to loading and splash elements.
+- Connected frontend to backend API through src/api.js.
+- Added cached API calls for slower-changing data.
+- Added /api/states consumption for state-level map coloring.
+- Removed/started removing fake fallback news.
+- Removed county drill-down behavior as a real data tier because it duplicated district geography and was fake.
+- District panel now attempts to display backend-enriched fields:
+  - real incumbent
+  - real candidates
+  - FEC fundraising
+  - local news if loaded
+  - transparency fields if present
+- Articles now render as clickable links and show fuller headline text.
+
+Still needs cleanup:
+- App.jsx still has old hardcoded scaffolding blocks like competitiveOverrides, representativeProfiles, and enrichDistrict.
+  Some are no longer central, but they should be fully removed.
+- State panels should be replaced with API-only data.
+- Some UI copy still says pending/loading where deeper real data needs to be wired.
+- Full frontend QA should be done in Browser Use at http://localhost:5173.
+
+
+BACKEND
+Backend entry:
+C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\main.py
+
+Schema:
+C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\db\schema.sql
+
+API docs:
+http://localhost:8000/docs
+
+Core backend changes:
+- Built FastAPI backend with DuckDB.
+- Added/updated schema.
+- Added real House roster tables:
+  - house_roster
+  - candidate_roster_2026
+  - member_committees
+- Added local news table:
+  - local_news
+- Added FEC finance table:
+  - fec_candidate_finance
+- Added state summary endpoint:
+  C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\api\routes\states.py
+- District API enriches forecasts with:
+  - House roster incumbent info
+  - committees
+  - 2026 candidates
+  - FEC fundraising rows
+  - local news
+  - transparency/donor info if available
+
+
+REAL DATA LOADED
+
+1. Official House roster
+File:
+C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\data\historical\load_roster.py
+
+Source:
+- House Clerk XML: https://clerk.house.gov/xml/lists/MemberData.xml
+
+Result:
+- Loaded 435 current House members.
+- Example:
+  - AZ-06 -> Juan Ciscomani
+  - CA-22 -> David G. Valadao
+
+
+2. MIT House election results
+File:
+C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\data\historical\load_historical.py
+
+User provided:
+- C:\Users\pdc\Downloads\1976-2024-house.tab
+
+Result:
+- Loaded 10,859 district-year House results.
+- Added 2024 margins for 433 districts.
+
+
+3. FEC 2026 candidate finance
+File:
+C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\data\historical\load_fec_weball.py
+
+User provided:
+- C:\Users\pdc\Downloads\weball26.zip
+
+Result:
+- Loaded 3,321 real 2026 House candidate finance rows.
+- Data includes:
+  - FEC candidate ID
+  - candidate name
+  - party
+  - incumbent/challenger/open-seat code
+  - total receipts
+  - total disbursements
+  - cash on hand
+  - individual contributions
+  - PAC contributions
+  - party contributions
+  - coverage end date
+
+Example verified:
+http://localhost:8000/api/districts/AZ-06
+- Incumbent: Juan Ciscomani
+- Major D candidate: Joanna Mendoza
+- FEC receipts/cash-on-hand included.
+
+
+4. TAPESTRY PVI
+File:
+C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\data\historical\build_tapestry_pvi.py
+
+Reason:
+- Cook PVI requires payment.
+- We need a free structural district baseline.
+
+Current formula:
+- 60% 2024 House margin
+- 25% 2022 House margin
+- 15% 2020 House margin
+
+Output:
+- Writes a cook_pvi-compatible label, but source marks it as TAPESTRY_PVI_MIT_HOUSE.
+- Example: AZ-06 got around R+2.5.
+
+Caveat:
+- This is not Cook PVI.
+- It is a transparent proxy from House results.
+- Better future replacement: Daily Kos presidential-by-CD results or FiveThirtyEight partisan lean.
+
+
+SCRAPERS
+Important files:
+- C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\scrapers\fec_scraper.py
+- C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\scrapers\kalshi_scraper.py
+- C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\scrapers\local_news_scraper.py
+- C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\scrapers\census_scraper.py
+- C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\scrapers\opensecrets_scraper.py
+
+Changes:
+- FEC scraper now prefers local fec_candidate_finance from weball26.zip.
+- Kalshi scraper was changed to avoid fake prices when no market exists.
+- OpenSecrets API was removed because OpenSecrets discontinued public API access as of April 15, 2025.
+  The scraper now returns no fake rows.
+- Local news fake/example rows were removed or reduced; empty means pending.
+- Census scraper exists for ACS district demographics but may still need a clean full run.
+
+
+MODEL
+Important files:
+- C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\model\features.py
+- C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\model\retrainer.py
+- C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\model\district_model.py
+
+What changed:
+- Feature building now joins real DuckDB tables instead of pure synthetic data:
+  - house_roster
+  - district_features
+  - candidate_quality
+  - national_factors
+- Missing fields are logged and imputed rather than silently set to zero.
+- Retrainer candidate lookup was changed to prefer real candidates from candidate_roster_2026,
+  ordered by incumbency and FEC receipts.
+- Forecast table was patched so stale placeholder candidates like "AZ-06 D nominee" can be replaced with real FEC candidate names.
+
+Caveat:
+- The full daily update still needs performance cleanup.
+- It timed out because the scraper pipeline tried too much work, especially FEC API calls before the local-file shortcut fully took effect.
+- FEC was patched to prefer local weball data, but Claude should verify daily update end-to-end.
+
+
+ADMIN
+Admin app:
+C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\admin\admin_app.py
+
+Added/started:
+- Data completeness page.
+- Buttons to run roster/historical loaders.
+- Completeness checks for:
+  - incumbent
+  - Cook/TAPESTRY PVI
+  - Census
+  - FEC
+  - Kalshi
+  - 2024 result
+  - candidates
+
+
+IMPORTANT API LINKS
+- UI: http://localhost:5173
+- Backend: http://localhost:8000
+- Docs: http://localhost:8000/docs
+- Morning brief: http://localhost:8000/api/morning-brief
+- Districts: http://localhost:8000/api/districts
+- AZ-06: http://localhost:8000/api/districts/AZ-06
+- AZ-06 roster: http://localhost:8000/api/districts/AZ-06/roster
+- States: http://localhost:8000/api/states
+- Chambers: http://localhost:8000/api/chambers
+- National: http://localhost:8000/api/national
+
+
+RECOMMENDED NEXT CLAUDE TASKS
+1. Fully remove old frontend mock objects:
+   - competitiveOverrides
+   - representativeProfiles
+   - enrichDistrict
+   - countyIntel
+2. Make state and district panels render only API data.
+3. Run Census ACS ingest and wire real demographic values.
+4. Refactor daily update so it does not rerun slow scrapers every startup.
+5. Add a separate "refresh FEC weball" command instead of API-calling each candidate.
+6. Add Daily Kos or FiveThirtyEight partisan lean as better TAPESTRY PVI input.
+7. Verify Browser Use click-through:
+   - splash
+   - national map
+   - state click
+   - district click
+   - FEC finance display
+   - local news empty state
+8. Clean logs and reduce missing-feature spam.
+
+
+HONEST STATE
+The data foundation is much more real now:
+- Official House roster is loaded.
+- MIT historical House returns are loaded.
+- FEC 2026 candidate finance is loaded.
+- TAPESTRY PVI exists as a free transparent Cook alternative.
+
+But the frontend still needs one more pass to delete old mock-era scaffolding completely.

@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.env
+.env.local
+tapestry-backend/.venv/
+tapestry-backend/data/tapestry.duckdb
+tapestry-backend/data/tapestry.duckdb.wal
+tapestry-backend/data/raw/
+tapestry-backend/data/logs/
+tapestry-backend/data/models/
+tapestry-backend/data/tmp_export/
+tapestry-backend/data/*.parquet
+*.pyc
+__pycache__/
+.DS_Store
+
+# Submission/demo deploy database. Keep this exception only if using
+# the Render free-tier "commit demo DB" option.
+!tapestry-backend/data/tapestry_demo.duckdb

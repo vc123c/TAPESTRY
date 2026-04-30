@@ -1,0 +1,8 @@
+TAPESTRY CANDIDATE SANITY REPORT
+Generated: 2026-04-26T19:24:22.274303
+House roster rows: 435
+Candidate rows: 3355
+FEC finance rows: 3321
+Districts with candidates: 457
+Duplicate candidate rows: 0
+Issues found: 0

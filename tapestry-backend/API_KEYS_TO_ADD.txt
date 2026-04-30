@@ -1,0 +1,58 @@
+TAPESTRY API KEYS - QUICK DROP ZONE
+
+Put keys in this file:
+
+  C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend\.env
+
+Open it from Command Prompt:
+
+  cd /d C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend
+  notepad .env
+
+Paste keys next to these lines:
+
+  POLYMARKET_API_KEY=
+  NEWSAPI_KEY=
+  CENSUS_API_KEY=
+  FRED_API_KEY=
+  FEC_API_KEY=DEMO_KEY
+  KALSHI_ACCESS_KEY_ID=
+  KALSHI_PRIVATE_KEY_PATH=./secrets/kalshi_private_key.pem
+
+Restart the backend after editing:
+
+  .\.venv\Scripts\python.exe -m uvicorn main:app --port 8000 --reload
+
+Most helpful APIs to get next:
+
+1. Polymarket
+   Purpose: prediction-market prices for chamber/race gaps.
+   Put in: POLYMARKET_API_KEY
+
+2. NewsAPI
+   Purpose: fallback news search when Google News/GDELT are flaky.
+   Put in: NEWSAPI_KEY
+   Site: https://newsapi.org/
+
+3. Census
+   Purpose: higher-rate ACS demographics.
+   Put in: CENSUS_API_KEY
+   Site: https://api.census.gov/data/key_signup.html
+
+4. FRED
+   Purpose: stable macroeconomic data.
+   Put in: FRED_API_KEY
+   Site: https://fred.stlouisfed.org/docs/api/api_key.html
+
+5. FEC
+   Purpose: higher-limit candidate finance calls.
+   Put in: FEC_API_KEY
+   Site: https://api.open.fec.gov/developers/
+
+6. Kalshi
+   Purpose: signed Kalshi market reads.
+   Put in:
+     KALSHI_ACCESS_KEY_ID
+     KALSHI_PRIVATE_KEY_PATH
+
+Do not paste private keys into chat. Put them in .env or the separate PEM file only.
