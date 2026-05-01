@@ -625,12 +625,18 @@ function TopBar({ national, loading }) {
   const ballotText = loading || ballot === undefined || ballot === null ? "-" : `${Number(ballot) >= 0 ? "D" : "R"}+${Math.abs(Number(ballot)).toFixed(1)}`;
   const approvalValue = Number(national?.presidential_approval);
   const approvalText = loading || national?.presidential_approval === undefined || national?.presidential_approval === null ? "-" : `${Math.round(approvalValue <= 1 ? approvalValue * 100 : approvalValue)}%`;
+  const gasValue = Number(national?.gas_price_national);
+  const gasChange = Number(national?.gas_price_3m_change);
+  const gasText = loading || national?.gas_price_national === undefined || national?.gas_price_national === null
+    ? "-"
+    : `$${gasValue.toFixed(2)}${Number.isFinite(gasChange) ? ` (${gasChange >= 0 ? "+" : ""}${gasChange.toFixed(2)} 3mo)` : ""}`;
   return h("header", { className: "topbar" },
     h("div", { className: "brand-wrap" }, h("span", { className: "brand" }, "TAPESTRY"), h("span", { className: "tagline" }, "the country, woven together")),
     h("div", { className: "date-tag" }, "2026 MIDTERMS - Nov 3, 2026"),
     h("div", { className: "pills" },
       h("span", { className: `pill ${Number(ballot || 0) >= 0 ? "blue" : "red"}` }, `Generic Ballot: ${ballotText}`),
       h("span", { className: "pill amber" }, `Presidential Approval: ${approvalText}`),
+      h("span", { className: "pill amber" }, `Gas: ${gasText}`),
       h("span", { className: "pill amber" }, `Days to Election: ${daysToElection()}`)
     )
   );
@@ -800,7 +806,7 @@ function ElectionMap({ activeState, setActiveState, activeDistrict, setActiveDis
 
   return h("main", { className: "map-panel", onDoubleClick: activeState ? resetMap : undefined },
     activeState && h("div", { className: "map-nav" },
-      h("button", { className: "back-button", onClick: backOneLevel }, activeDistrict ? `<- ${selected.stateName}` : "<- United States"),
+      h("button", { className: "back-button", onClick: backOneLevel, "aria-label": activeDistrict ? `Back to ${selected.stateName}` : "Back to United States" }, activeDistrict ? `← ${selected.stateName}` : "← United States"),
       h("div", { className: "breadcrumb" },
         h("button", { onClick: resetMap }, "United States"),
         h("span", null, ">"),

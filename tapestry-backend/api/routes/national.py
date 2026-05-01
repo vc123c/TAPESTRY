@@ -145,8 +145,14 @@ def national_summary():
         issue_map["relative_strength"] = strength
         issue_map["overall"] = overall
     return {
-        "presidential_approval": n[1], "generic_ballot_margin": n[2], "kitchen_table_index": n[15],
-        "anti_establishment_index": n[18], "college_realignment_index": n[17],
+        "presidential_approval": data.get("presidential_approval"),
+        "generic_ballot_margin": data.get("generic_ballot_d_margin"),
+        "kitchen_table_index": data.get("kitchen_table_index"),
+        "gas_price_national": data.get("gas_price_national"),
+        "gas_price_3m_change": data.get("gas_price_3m_change"),
+        "gas_prices_approval": data.get("gas_prices_approval"),
+        "anti_establishment_index": data.get("anti_establishment_index"),
+        "college_realignment_index": data.get("college_realignment_index"),
         "conflict_stage_iran": c[0] if c else 3.0, "escalation_trap_probability": c[1] if c else 0.3,
         "days_to_election": max(0, (__import__("datetime").date(2026, 11, 3) - __import__("datetime").date.today()).days),
         "issue_approval": issue_map or None,

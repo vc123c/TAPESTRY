@@ -2599,3 +2599,66 @@ Expected behavior:
 - Select California: no right-side INTELLIGENCE FEED cards below the race list.
 - Select CA-13 or TX-11: no right-side story cards; district-specific news
   remains available in the left panel.
+
+
+LIVE GAS PRICE EXPOSURE - 2026-04-30
+====================================
+
+User asked whether live gas prices are already present and whether they can
+be added.
+
+Current data status:
+- Gas prices were already scraped and stored from EIA.
+- Latest local national_factors values:
+  gas_price_national = 3.48
+  gas_price_3m_change = 0.18
+  gas_prices_approval = 0.24
+  kitchen_table_index = 0.62
+- Gas prices already feed the model through kitchen_table_index and issue
+  approval features.
+
+Files changed:
+- tapestry-backend/api/schemas.py
+- tapestry-backend/api/routes/national.py
+- App.jsx
+- dist rebuilt locally
+
+Backend fix:
+- /api/national now exposes:
+  gas_price_national
+  gas_price_3m_change
+  gas_prices_approval
+- /api/national now reads national_factors by column name rather than fragile
+  positional indexes. This prevents added columns from silently shifting
+  kitchen_table_index, anti_establishment_index, or college_realignment_index.
+
+Frontend:
+- Top bar now includes:
+  Gas: $3.48 (+0.18 3mo)
+  when /api/national provides gas values.
+
+Verification:
+- Local national_summary() returned:
+  gas_price_national: 3.48
+  gas_price_3m_change: 0.18
+  gas_prices_approval: 0.24
+- Static build generated:
+  App.gas-20260430.js
+  and contains the Gas pill.
+
+
+BACK BUTTON ARROW POLISH - 2026-04-30
+=====================================
+
+User asked to replace the literal "<-" back label with a real arrow.
+
+File changed:
+- App.jsx
+
+Change:
+- Map back button now renders:
+  ← United States
+  ← {State Name}
+- Added aria-label text:
+  Back to United States
+  Back to {State Name}

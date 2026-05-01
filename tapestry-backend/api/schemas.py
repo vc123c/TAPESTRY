@@ -97,6 +97,9 @@ class NationalSummary(BaseModel):
     presidential_approval: float
     generic_ballot_margin: float
     kitchen_table_index: float
+    gas_price_national: Optional[float] = None
+    gas_price_3m_change: Optional[float] = None
+    gas_prices_approval: Optional[float] = None
     anti_establishment_index: float
     college_realignment_index: float
     conflict_stage_iran: float
