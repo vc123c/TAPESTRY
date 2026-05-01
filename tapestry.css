@@ -103,3 +103,48 @@ h3, h4, .panel-section h3 { font-size: var(--t-text-xs); margin-bottom: 6px; }
 .event-feed-type { font-size: var(--t-text-xs); padding: 1px 5px; border-radius: 2px; }
 .left .panel-section { background: rgba(255,255,255,.02); border: 1px solid #1e2130; border-radius: 3px; padding: 10px 12px; margin-bottom: 8px; }
 .left .panel-section h3 { font-size: var(--t-text-xs); color: #64748b; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; font-weight: 600; }
+
+/* 1980s Macintosh cream theme. Electoral geography keeps its D/R map colors. */
+:root{
+  --mac-cream:#f4ead2;
+  --mac-cream-2:#fff7e4;
+  --mac-paper:#fffaf0;
+  --mac-ink:#1f2528;
+  --mac-muted:#6b6256;
+  --mac-line:#2c2c2c;
+  --mac-shadow:rgba(44,36,24,.18);
+  --mac-green:#19a51e;
+  --mac-yellow:#ffd23f;
+  --mac-orange:#ff7f11;
+  --mac-red:#ff2b20;
+  --mac-magenta:#c51f5d;
+  --mac-blue:#1f64dc;
+}
+body,.app-shell{background:var(--mac-cream);color:var(--mac-ink);font-family:"Chicago","Geneva","Monaco","Courier New",system-ui,sans-serif}
+.topbar{background:var(--mac-paper);border-bottom:2px solid var(--mac-line);box-shadow:0 2px 0 rgba(255,255,255,.9) inset,0 2px 10px var(--mac-shadow)}
+.brand-wrap{gap:12px}.brand{color:var(--mac-ink)!important;text-shadow:none!important;letter-spacing:.20em;font-weight:900}.brand:after{content:"";display:inline-block;width:74px;height:8px;margin-left:12px;border-radius:1px;background:linear-gradient(90deg,var(--mac-green) 0 16.6%,var(--mac-yellow) 16.6% 33.2%,var(--mac-orange) 33.2% 49.8%,var(--mac-red) 49.8% 66.4%,var(--mac-magenta) 66.4% 83%,var(--mac-blue) 83% 100%);vertical-align:middle;box-shadow:0 1px 0 rgba(0,0,0,.22)}
+.tagline,.date-tag{color:var(--mac-muted)}
+.pill{background:var(--mac-cream-2);color:var(--mac-ink);border:2px solid var(--mac-line);border-left-width:7px;border-radius:0;box-shadow:2px 2px 0 var(--mac-shadow);font-weight:800}
+.pill.blue{border-left-color:var(--mac-blue)}.pill.amber:nth-child(2){border-left-color:var(--mac-orange)}.pill.amber:nth-child(3){border-left-color:var(--mac-red)}.pill.amber:nth-child(4){border-left-color:var(--mac-yellow)}
+.panel{background:var(--mac-cream);color:var(--mac-ink);scrollbar-color:var(--mac-muted) transparent}.left{border-right:2px solid var(--mac-line)}.right{border-left:2px solid var(--mac-line)}
+.panel>div,.right>div{background:linear-gradient(180deg,var(--mac-cream),#eadcbd)}
+h2{color:var(--mac-ink);text-shadow:1px 1px 0 rgba(255,255,255,.65)}h3,h4,.left .panel-section h3{color:#355f96}
+.panel-section,.intel-card,.news-card,.integrity-card,.challenger-row,.event-card,.event-feed-row,.bio-overlay,.brief-modal,.map-overlay,.tooltip{background:var(--mac-paper)!important;color:var(--mac-ink)!important;border:2px solid var(--mac-line)!important;border-radius:0!important;box-shadow:3px 3px 0 var(--mac-shadow)!important}
+.left .panel-section{background:var(--mac-paper)!important;border:2px solid var(--mac-line)!important;border-radius:0!important;box-shadow:3px 3px 0 var(--mac-shadow)}
+.control-row,.race-card,.market-row,.signal-row,.detail-row,.move-row,.mini-row,.vote-row,.news-row,.position-row,.intel-card{border-top:2px solid rgba(31,37,40,.22)}
+.control-row>b,.market-row,.legend-row,.move-row,.race-statement,.news-card p,.event-title,.event-feed-row b,.signal-row b,.detail-row b,.position-row b,.live-news a{color:var(--mac-ink)!important}
+.market-label,.muted,small,.signal-row span,.detail-row span,.context-list li,.subhead,.coming,.race-meta,.state-race-prob,.event-feed-row small,.event-card small,.narrative,.tagline{color:var(--mac-muted)!important}
+.state-race-row,.lens,.geo-toggle,.zoom-buttons,.breadcrumb,.back-button,.more-info,.brief-modal button,.bio-close{background:var(--mac-paper)!important;color:var(--mac-ink)!important;border:2px solid var(--mac-line)!important;border-radius:0!important;box-shadow:2px 2px 0 var(--mac-shadow)!important}
+.state-race-row:hover,.state-race-row:focus,.state-race-row.active,.lens.active:hover,.geo-toggle button.active,.zoom-buttons button:hover,.back-button:hover,.more-info:hover{background:#ffe9a8!important;border-color:var(--mac-line)!important;transform:none}
+.lens{border-left:8px solid var(--mac-green)!important}.lens:nth-child(2){border-left-color:var(--mac-yellow)!important}.lens:nth-child(3){border-left-color:var(--mac-orange)!important}.lens:nth-child(4){border-left-color:var(--mac-red)!important}
+.source-badge,.event-feed-type{background:#efe0ff!important;color:#3a2454!important;border:2px solid #6f3aa6!important;border-radius:0!important}
+.badge,.race-top em,.state-race-row em{border-radius:0!important;border:1px solid var(--mac-line);box-shadow:1px 1px 0 rgba(0,0,0,.18)}
+.prob-bar,.factor-track,.funding-track{background:#f0e2c4!important;border:1px solid var(--mac-line)!important;border-radius:0!important}
+.prob-d,.factor-track i.d,.funding-track .d{background:#1f64dc!important}.prob-r,.factor-track i.r,.funding-track .r{background:#ff4b3e!important}
+.map-panel{background:#efe4ca;background-image:radial-gradient(rgba(31,37,40,.18) 1px,transparent 1px);background-size:18px 18px}
+.map-nav .breadcrumb,.map-nav .zoom-buttons,.map-overlay,.tooltip{background:rgba(255,250,240,.94)!important;backdrop-filter:none}
+.breadcrumb button,.breadcrumb b,.zoom-buttons button{color:var(--mac-ink)!important}.geo:hover{stroke:#111!important}.district-focused{filter:brightness(1.05) saturate(1.05) drop-shadow(2px 2px 0 rgba(0,0,0,.22))}
+.offline-banner{background:#ffe1d8;color:var(--mac-ink);border:2px solid var(--mac-red);box-shadow:3px 3px 0 var(--mac-shadow)}
+.enter-splash{background:var(--mac-cream)!important;color:var(--mac-ink)!important;background-image:linear-gradient(90deg,rgba(31,37,40,.08) 1px,transparent 1px),linear-gradient(0deg,rgba(31,37,40,.08) 1px,transparent 1px)!important;background-size:18px 18px!important}
+.enter-word{color:var(--mac-ink)!important;text-shadow:2px 2px 0 rgba(255,255,255,.85)!important}.enter-splash p{color:var(--mac-muted)!important}
+.thread-line.line-a{stroke:var(--mac-green)!important}.thread-line.line-b{stroke:var(--mac-orange)!important}.thread-line.line-c{stroke:var(--mac-blue)!important}

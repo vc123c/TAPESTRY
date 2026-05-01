@@ -2662,3 +2662,34 @@ Change:
 - Added aria-label text:
   Back to United States
   Back to {State Name}
+
+
+1980S MACINTOSH CREAM THEME - 2026-04-30
+========================================
+
+User asked to recolor the app chrome to a light cream 1980s Macintosh style
+using the classic Apple rainbow colors, while keeping the country/map red and
+blue.
+
+File changed:
+- tapestry.css
+
+Theme changes:
+- Added a final CSS override block so existing app logic and map rendering are
+  untouched.
+- Panels, menu surfaces, cards, buttons, tooltips, modals, top bar, and splash
+  background now use warm cream/paper tones.
+- Added classic rainbow accent colors:
+  green, yellow, orange, red, magenta, blue.
+- Brand header gets a small horizontal rainbow stripe treatment.
+- Pills use cream backgrounds with thick black borders and colored left rails.
+- Cards/buttons use square corners and black Macintosh-style outlines/shadows.
+- Map panel background is cream-grid styled, but electoral fill colors remain
+  blue/red from App.jsx rating colors.
+- Probability bars remain blue/red.
+
+Verification:
+- Static build generated:
+  App.mac-cream-20.js
+- dist/tapestry.css contains:
+  "1980s Macintosh cream theme. Electoral geography keeps its D/R map colors."
