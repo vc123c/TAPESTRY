@@ -8,6 +8,7 @@ const BASE_URL = (
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 const MONTH = 30 * 24 * HOUR;
+const REQUEST_TIMEOUT = 45 * 1000;
 
 function buildUrl(path, params = {}) {
   const query = new URLSearchParams();
@@ -44,13 +45,21 @@ async function getJson(path, params = {}, options = {}) {
     const cached = readCache(cacheKey);
     if (cached) return cached;
   }
+  let timeout = null;
   try {
-    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    const controller = new AbortController();
+    timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const data = await res.json();
     writeCache(cacheKey, data, options.ttlMs);
     return data;
   } catch (err) {
+    if (timeout) clearTimeout(timeout);
     console.error(`API request failed: ${path}`, err);
     if (options.ttlMs) return readCache(cacheKey);
     return null;

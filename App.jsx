@@ -968,35 +968,44 @@ function App() {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
     Promise.all([
       getMorningBrief(),
       getChambers(),
       getNational(),
       getDistrictSummaries(),
-      getConflicts(),
-      getEvents(),
       getStates(),
-      getNewsReadiness(),
       getMarketGaps()
-    ]).then(([brief, chamberRows, nationalRows, districtRows, conflictRows, eventRows, stateRows, readiness, marketGapRows]) => {
+    ]).then(([brief, chamberRows, nationalRows, districtRows, stateRows, marketGapRows]) => {
+      if (cancelled) return;
       setMorningBrief(brief);
       setChambers(chamberRows || []);
       setNational(nationalRows);
       setDistricts(districtRows || []);
-      setConflicts(conflictRows || []);
-      setEvents(eventRows || []);
       setStateSummaries(stateRows || []);
       setMarketGaps(marketGapRows);
-      if (readiness) {
-        setNewsCompleteStates(new Set(Object.entries(readiness).filter(([, count]) => Number(count) >= INFO_READY_THRESHOLD).map(([state]) => state)));
-      }
       setShowBrief(Boolean(brief));
       setError(!brief && !chamberRows && !nationalRows && !districtRows);
       setLoading(false);
     }).catch(() => {
+      if (cancelled) return;
       setError(true);
       setLoading(false);
     });
+
+    Promise.all([
+      getConflicts(),
+      getEvents(),
+      getNewsReadiness()
+    ]).then(([conflictRows, eventRows, readiness]) => {
+      if (cancelled) return;
+      setConflicts(conflictRows || []);
+      setEvents(eventRows || []);
+      if (readiness) {
+        setNewsCompleteStates(new Set(Object.entries(readiness).filter(([, count]) => Number(count) >= INFO_READY_THRESHOLD).map(([state]) => state)));
+      }
+    });
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {

@@ -2720,3 +2720,50 @@ Expected behavior after redeploy:
 - Map remains red/blue.
 - Top bar no longer has the misaligned rainbow stripe.
 - Right panel returns to prior dark-card layout.
+
+
+DEPLOYED API COLD-START RESILIENCE - 2026-05-01
+===============================================
+
+User reported the Vercel frontend looked "down": the app shell loaded, but
+live values were blank and the left panel stayed on LOADING LIVE DATA.
+
+Diagnosis:
+- Render root page was awake after cold start.
+- Verified live backend endpoints:
+  /api/national returned presidential_approval 0.35, generic_ballot_margin 7.0,
+  gas_price_national 3.48, gas_price_3m_change 0.18.
+- /api/chambers returned House D control 0.772983 and Senate D control
+  0.501446.
+- /api/districts/summary returned forecast rows, including AZ-06 as Juan
+  Ciscomani.
+- Verified Render sends CORS allow-origin for:
+  https://tapestry-lake.vercel.app
+- Verified Vercel serves the current bundle and dist/src/api.js points to:
+  https://tapestry-2iyf.onrender.com
+
+Files changed:
+- App.jsx
+- src/api.js
+
+Change:
+- App.jsx no longer blocks first dashboard paint on all startup endpoints.
+- Critical forecast data now loads first:
+  morning brief, chambers, national factors, district summaries, states, and
+  market gaps.
+- Optional feeds now hydrate separately after first paint:
+  conflicts, events, and news-readiness.
+- src/api.js now uses AbortController with a 45-second request timeout so a
+  stuck optional request cannot hold the dashboard indefinitely.
+
+Verification:
+- Headless browser check against https://tapestry-lake.vercel.app returned all
+  startup API calls as HTTP 200.
+- Browser text showed:
+  Generic Ballot: D+7.0
+  Presidential Approval: 35%
+  Gas: $3.48 (+0.18 3mo)
+  House D control: 77%
+  Senate D control: 50%
+- Static build generated:
+  App.api-resilien.js
