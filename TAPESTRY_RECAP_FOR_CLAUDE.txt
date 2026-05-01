@@ -2693,3 +2693,30 @@ Verification:
   App.mac-cream-20.js
 - dist/tapestry.css contains:
   "1980s Macintosh cream theme. Electoral geography keeps its D/R map colors."
+
+
+MACINTOSH CREAM THEME REVERTED - 2026-05-01
+===========================================
+
+User reported the cream Macintosh theme caused layout/readability problems:
+- logo stripe misaligned under TAPESTRY
+- top-right pills overlapped/cramped
+- right panel content overlapped and became hard to read
+
+File changed:
+- tapestry.css
+
+Action:
+- Removed the final "1980s Macintosh cream theme" CSS override block.
+- Restored the previous dark TAPESTRY UI chrome.
+- Kept functional changes intact:
+  live gas price API/UI support,
+  real arrow back button,
+  right-side story feed hidden in state/district views,
+  district news cleanup scripts and demo DB changes.
+
+Expected behavior after redeploy:
+- Dark UI returns.
+- Map remains red/blue.
+- Top bar no longer has the misaligned rainbow stripe.
+- Right panel returns to prior dark-card layout.
