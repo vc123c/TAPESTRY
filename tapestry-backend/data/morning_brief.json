@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-30T03:39:03.953220+00:00",
+  "generated_at": "2026-05-03T23:34:21.680169+00:00",
   "data_current_as_of": "2026-04-29",
   "submission_note": "Model trained on MIT Election Lab results 2008-2024. National factors current as of 2026-04-29. Approval data: Strength In Numbers/Verasight April 2026 (35% approve). Prediction market data: Polymarket House D control 86% as of 2026-04-29.",
   "senate": {
@@ -308,7 +308,7 @@
     "college_realignment_index": 0.71,
     "conflict_stage_iran": 3.0,
     "escalation_trap_probability": 0.0,
-    "days_to_election": 188
+    "days_to_election": 184
   },
   "top_moves": [
     {
@@ -450,7 +450,7 @@
   "narrative": "Overnight model scored 435 districts. The closest seats are MI-10, TX-22, MT-01. 2024 holdout validation completed. Active source-intelligence signals include immigration policy, social event.",
   "anomalies_pending": 0,
   "overnight_summary": {
-    "mode": "fast_update",
-    "generated_at": "2026-04-30T03:38:41.826912"
+    "steps_completed": 0,
+    "steps_cached": 0
   }
 }

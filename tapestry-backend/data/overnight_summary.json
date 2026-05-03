@@ -1,7 +1,7 @@
 {
-  "run_date": "2026-04-29",
-  "started_at": "2026-04-29T23:16:53.800949+00:00",
-  "completed_at": "2026-04-29T23:17:04.324017+00:00",
+  "run_date": "2026-05-03",
+  "started_at": "2026-05-03T23:34:06.750847+00:00",
+  "completed_at": "2026-05-03T23:34:21.691181+00:00",
   "duration_minutes": 0,
   "steps": [],
   "model_performance": {
@@ -29,7 +29,7 @@
     "districts_with_census": 438,
     "districts_with_fec": 457,
     "districts_with_news": 11,
-    "districts_with_race_news": 160,
+    "districts_with_race_news": 435,
     "districts_with_kalshi": 0,
     "districts_with_full_data": 435,
     "total_districts": 435
