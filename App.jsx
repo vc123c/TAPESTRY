@@ -546,6 +546,7 @@ function StateRaceList({ activeState, districts, roster, focusedDistrictId, onRa
 }
 
 function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail, districtNews, districts, roster, focusedDistrictId, onRaceHover, onRaceLeave, onSelectDistrict, events, onEventPulse }) {
+  const [infoTab, setInfoTab] = useState("dashboard");
   const moves = (morningBrief?.top_moves || []).slice(0, 5);
   const newsCount = districtNews?.articles?.length || 0;
   const districtId = activeDistrict?.liveDistrict?.district_id || activeDistrict?.districtLabel || null;
@@ -569,6 +570,24 @@ function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail,
   const twoSeventy = districtDetail?.twoseventy_context || raceIntel.twoseventy;
   return h("aside", { className: "right panel" },
     h("div", null,
+      h("div", { className: "explainer-tabs", role: "tablist", "aria-label": "Right panel mode" },
+        h("button", { className: infoTab === "dashboard" ? "active" : "", role: "tab", "aria-selected": infoTab === "dashboard", onClick: () => setInfoTab("dashboard") }, "Dashboard"),
+        h("button", { className: infoTab === "explainer" ? "active" : "", role: "tab", "aria-selected": infoTab === "explainer", onClick: () => setInfoTab("explainer") }, "Explainer")
+      ),
+      infoTab === "explainer" ? h(Section, { title: "COMPETITION EXPLAINER" },
+        h("div", { className: "explainer-card" },
+          h("h2", null, "What Is TAPESTRY?"),
+          h("p", null, "TAPESTRY is a live dashboard for the 2026 U.S. midterms. It estimates each House race, rolls those races up into chamber control odds, and compares the model with prediction market prices."),
+          h("div", { className: "explainer-grid" },
+            h("div", null, h("b", null, "Model"), h("span", null, "The forecast starts with fundamentals, then uses a residual model to catch patterns the first pass misses.")),
+            h("div", null, h("b", null, "Validation"), h("span", null, "The model is tested by training on past cycles and holding out later elections. The 2024 competitive-race Brier score is about 0.135.")),
+            h("div", null, h("b", null, "Sources"), h("span", null, "Inputs include MIT Election Lab, FEC, Census ACS, House Clerk, polling, FRED, Polymarket, and race news.")),
+            h("div", null, h("b", null, "Simulation"), h("span", null, "The House forecast comes from 50,000 simulated elections with shared national swings."))
+          ),
+          h("p", { className: "muted tight" }, "How to use it: click a state, pick a district, then compare the race profile, candidates, money, local news, and uncertainty."),
+          h("p", { className: "muted tight" }, "Data current as of Apr 29, 2026. Backend may take a moment to wake on the free Render tier.")
+        )
+      ) : h(React.Fragment, null,
       h(Section, { title: activeDistrict ? "RACE INTELLIGENCE" : "NATIONAL INTELLIGENCE" },
         activeDistrict ? h("div", { className: "intel-card" },
           h("h2", null, activeDistrict.districtLabel),
@@ -607,6 +626,7 @@ function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail,
             ? h("a", { className: "event-feed-row", key: event.event_id, href: event.source_url, target: "_blank", rel: "noreferrer", title: event.event_name, onMouseEnter: () => onEventPulse?.(event) }, rowContent)
             : h("button", { className: "event-feed-row", key: event.event_id, onClick: () => onEventPulse?.(event), title: event.event_name }, rowContent);
         }).concat(scopedFeed.length ? [] : [h("p", { className: "muted", key: "none" }, emptyFeedText)])
+      )
       )
     ),
     h("div", null,

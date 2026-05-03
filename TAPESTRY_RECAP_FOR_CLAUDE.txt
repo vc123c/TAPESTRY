@@ -2767,3 +2767,35 @@ Verification:
   Senate D control: 50%
 - Static build generated:
   App.api-resilien.js
+
+
+COMPETITION EXPLAINER TAB - 2026-05-03
+======================================
+
+User asked for a simple explainer tab for competition visitors.
+
+Files changed:
+- App.jsx
+- tapestry.css
+
+Change:
+- Added a two-button tab control at the top of the right panel:
+  Dashboard
+  Explainer
+- Dashboard preserves the existing right-panel behavior.
+- Explainer shows a short visitor-facing explanation of:
+  what TAPESTRY is,
+  how the model works,
+  validation,
+  data sources,
+  chamber simulation,
+  and how to use the map.
+- Copy was rewritten in plain language with no em dashes and no pitch-style
+  wording.
+- Added compact dark-theme styles for the tab buttons and explainer cards.
+
+Verification:
+- Static build generated:
+  App.explainer-20.js
+- Checked App.jsx, tapestry.css, and this recap for em dash and en dash
+  characters. None found.
