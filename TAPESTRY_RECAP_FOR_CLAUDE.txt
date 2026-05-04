@@ -2816,3 +2816,18 @@ Change:
   .thread-band.bottom
 - Both splash thread bands now use width: 100vw and max-width: none.
 - No model, API, map, or dashboard behavior was changed.
+
+Correction:
+- User clarified they meant the animated helix strands, not just the band
+  container.
+- Updated the final CSS override so the top and bottom helix bands remove the
+  inward clip-path and force the SVG helix itself to width: 100vw.
+- This makes the animated strands span the screen instead of remaining visually
+  centered.
+
+Second correction:
+- User reported the helix still appeared to stretch only one way.
+- The SVG animation was still using scaleX values below 1, which squeezed the
+  helix horizontally even after the container was full width.
+- Overrode threadTensionStable so the helix keeps scaleX(1) throughout the
+  animation and only changes vertical tension.
