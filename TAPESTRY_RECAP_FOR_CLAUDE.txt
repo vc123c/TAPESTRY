@@ -2839,3 +2839,12 @@ Third correction:
 - Added a final override so, while the splash is not leaving, the top and
   bottom thread bands do not run the clipping animation at all.
 - The bands now stay full width, while the strand motion remains on the SVG.
+
+Fourth correction:
+- User showed the helix still only appeared to extend in one direction.
+- The real remaining issue was the line-draw animation on .thread-line.
+- That stroke-dash animation only revealed part of the strand at a time.
+- Added a final steady-state override so .thread-line uses no dash array, no
+  dash offset, and no draw animation while the splash is sitting on screen.
+- Result: the full helix should remain visible across the width instead of
+  looking half-drawn.
