@@ -108,4 +108,5 @@ h3, h4, .panel-section h3 { font-size: var(--t-text-xs); margin-bottom: 6px; }
 
 .thread-band.top,.thread-band.bottom{width:100vw!important;max-width:none!important;clip-path:inset(0 0 0 0)!important}
 .thread-band.top svg,.thread-band.bottom svg{width:100vw!important;max-width:none!important}
+.enter-splash:not(.leaving) .thread-band.top,.enter-splash:not(.leaving) .thread-band.bottom{animation:none!important;clip-path:inset(0 0 0 0)!important;opacity:.96!important}
 @keyframes threadTensionStable{0%,100%{transform:scaleX(1) scaleY(1.08)}42%,60%{transform:scaleX(1) scaleY(.58)}}
