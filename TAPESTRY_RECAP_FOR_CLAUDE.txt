@@ -2799,3 +2799,20 @@ Verification:
   App.explainer-20.js
 - Checked App.jsx, tapestry.css, and this recap for em dash and en dash
   characters. None found.
+
+
+SPLASH THREAD BANDS FULL WIDTH - 2026-05-03
+===========================================
+
+User asked for the top and bottom splash-page thread elements to stretch all
+the way across the screen instead of sitting in the center.
+
+File changed:
+- tapestry.css
+
+Change:
+- Added a final CSS override for:
+  .thread-band.top
+  .thread-band.bottom
+- Both splash thread bands now use width: 100vw and max-width: none.
+- No model, API, map, or dashboard behavior was changed.
