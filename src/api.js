@@ -67,11 +67,11 @@ async function getJson(path, params = {}, options = {}) {
 }
 
 export async function getMorningBrief() {
-  return getJson("/api/morning-brief");
+  return getJson("/api/morning-brief", {}, { ttlMs: 10 * MINUTE });
 }
 
 export async function getNational() {
-  return getJson("/api/national");
+  return getJson("/api/national", {}, { ttlMs: 10 * MINUTE });
 }
 
 export async function getAllDistricts(params = {}) {
@@ -83,7 +83,7 @@ export async function getDistrictSummaries(params = {}) {
 }
 
 export async function getDistrict(districtId) {
-  return getJson(`/api/districts/${encodeURIComponent(districtId)}`);
+  return getJson(`/api/districts/${encodeURIComponent(districtId)}`, {}, { ttlMs: 15 * MINUTE });
 }
 
 export async function getHouseRoster(params = {}) {
@@ -95,7 +95,7 @@ export async function getStates() {
 }
 
 export async function getChambers() {
-  return getJson("/api/chambers");
+  return getJson("/api/chambers", {}, { ttlMs: 10 * MINUTE });
 }
 
 export async function getConflicts() {
@@ -103,11 +103,11 @@ export async function getConflicts() {
 }
 
 export async function getEvents(params = {}) {
-  return getJson("/api/events", params);
+  return getJson("/api/events", params, { ttlMs: 10 * MINUTE });
 }
 
 export async function getDistrictNews(districtId, params = {}) {
-  return getJson(`/api/districts/${encodeURIComponent(districtId)}/news`, params);
+  return getJson(`/api/districts/${encodeURIComponent(districtId)}/news`, params, { ttlMs: 15 * MINUTE });
 }
 
 export async function getDistrictTransparency(districtId) {
@@ -119,7 +119,7 @@ export async function getKalshiGaps() {
 }
 
 export async function getMarketGaps() {
-  return getJson("/api/market/gaps");
+  return getJson("/api/market/gaps", {}, { ttlMs: 10 * MINUTE });
 }
 
 export async function refreshLocalNews() {

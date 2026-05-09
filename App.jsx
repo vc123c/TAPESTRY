@@ -30,8 +30,6 @@ const STATES_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 const DISTRICTS_URL = "https://cdn.jsdelivr.net/gh/civic-interconnect/civic-data-boundaries-us-cd118@main/data-out/national/cd118_us.geojson";
 const ELECTION_DAY = new Date("2026-11-03T00:00:00");
 const ACCENT = "#7c3aed";
-const LABS_AUDIO = "/assets/labs-consolidated.wav";
-const ENTER_AUDIO = "/assets/track-5-consolidated.wav";
 const INFO_READY_THRESHOLD = 3;
 
 const ratingColors = {
@@ -289,6 +287,14 @@ function SkeletonPanel() {
   );
 }
 
+function WarmupPanel() {
+  return h("div", null,
+    h("h2", null, "WAKING THE BACKEND"),
+    h("p", { className: "muted tight" }, "Render is spinning the API up. Live forecasts and news should appear shortly."),
+    [1, 2, 3, 4].map((i) => h("div", { className: "skeleton-line", key: i }))
+  );
+}
+
 function FactorBars({ factors }) {
   const rows = Object.entries(factors || {})
     .map(([k, v]) => [k, Number(v)])
@@ -326,6 +332,14 @@ function NationalPanel({ chambers, districts, loading, marketGaps }) {
   if (loading) return h(SkeletonPanel);
   const senate = chamberByName(chambers, "senate");
   const house = chamberByName(chambers, "house");
+  if (!senate && !house) {
+    return h("div", null,
+      h("h2", null, "NATIONAL OVERVIEW"),
+      h(Section, { title: "CHAMBER CONTROL" }, h("p", { className: "muted tight" }, "Forecast data is still warming up.")),
+      h(Section, { title: "MARKET PRICES" }, h("p", { className: "muted tight" }, "Market and chamber data will populate as soon as the backend responds.")),
+      h(Section, { title: "TOP COMPETITIVE RACES" }, h("p", { className: "muted tight" }, "District forecasts are pending."))
+    );
+  }
   const senateD = Math.round((senate?.d_control_probability ?? 0) * 100);
   const houseD = Math.round((house?.d_control_probability ?? 0) * 100);
   const housePolyGap = house?.polymarket_price == null ? null : Math.round(Math.abs((house.d_control_probability - house.polymarket_price) * 100));
@@ -545,8 +559,20 @@ function StateRaceList({ activeState, districts, roster, focusedDistrictId, onRa
   );
 }
 
-function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail, districtNews, districts, roster, focusedDistrictId, onRaceHover, onRaceLeave, onSelectDistrict, events, onEventPulse }) {
+function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail, districtNews, districts, roster, focusedDistrictId, onRaceHover, onRaceLeave, onSelectDistrict, events, onEventPulse, loading }) {
   const [infoTab, setInfoTab] = useState("dashboard");
+  if (loading) {
+    return h("aside", { className: "right panel" },
+      h("div", null, h(WarmupPanel)),
+      h("div", null,
+        h(Section, { title: "RATINGS SCALE" },
+          Object.entries(ratingColors).map(([label, color]) =>
+            h("div", { className: "legend-row", key: label }, h("i", { style: { background: color } }), h("span", null, label))
+          )
+        )
+      )
+    );
+  }
   const moves = (morningBrief?.top_moves || []).slice(0, 5);
   const newsCount = districtNews?.articles?.length || 0;
   const districtId = activeDistrict?.liveDistrict?.district_id || activeDistrict?.districtLabel || null;
@@ -702,12 +728,11 @@ function EnterSplash({ entered, onEnter }) {
   const threadPathA = "M0 32 C82 8 168 8 250 32 S418 56 500 32 S668 8 750 32 S918 56 1000 32";
   const threadPathB = "M0 32 C82 56 168 56 250 32 S418 8 500 32 S668 56 750 32 S918 8 1000 32";
   const threadPathC = "M0 32 C82 25 168 39 250 32 S418 25 500 32 S668 39 750 32 S918 25 1000 32";
-  const threadBand = (position) => h("div", { className: `thread-band ${position}` },
-    h("svg", { viewBox: "0 0 1000 64", preserveAspectRatio: "none", "aria-hidden": "true" },
-      h("path", { className: "thread-line line-a", d: threadPathA, pathLength: 1 }),
-      h("path", { className: "thread-line line-b", d: threadPathB, pathLength: 1 }),
-      h("path", { className: "thread-line line-c", d: threadPathC, pathLength: 1 }),
-      h("path", { className: "thread-core", d: "M0 32 H1000" })
+  const threadBand = (position) => h("div", { className: `splash-helix-band ${position}` },
+    h("svg", { className: "splash-helix-svg", viewBox: "0 0 1000 64", preserveAspectRatio: "none", "aria-hidden": "true" },
+      h("path", { className: "splash-helix-line helix-a", d: threadPathA }),
+      h("path", { className: "splash-helix-line helix-b", d: threadPathB }),
+      h("path", { className: "splash-helix-line helix-c", d: threadPathC })
     )
   );
   return h("div", { className: `enter-splash ${leaving ? "leaving" : ""}` },
@@ -823,10 +848,11 @@ function ElectionMap({ activeState, setActiveState, activeDistrict, setActiveDis
   const districtStroke = Math.max(0.002, 0.18 / Math.pow(mapZoom, 1.25));
   const districtFocusedStroke = Math.max(0.004, 0.42 / Math.pow(mapZoom, 1.2));
   const districtSelectedStroke = Math.max(0.005, 0.55 / Math.pow(mapZoom, 1.18));
+  const interactive = entered && !loading;
 
-  return h("main", { className: "map-panel", onDoubleClick: activeState ? resetMap : undefined },
+  return h("main", { className: `map-panel ${interactive ? "" : "locked"}`.trim(), onDoubleClick: interactive && activeState ? resetMap : undefined },
     activeState && h("div", { className: "map-nav" },
-      h("button", { className: "back-button", onClick: backOneLevel, "aria-label": activeDistrict ? `Back to ${selected.stateName}` : "Back to United States" }, activeDistrict ? `← ${selected.stateName}` : "← United States"),
+      h("button", { className: "back-button", onClick: backOneLevel, "aria-label": activeDistrict ? `Back to ${selected.stateName}` : "Back to United States" }, activeDistrict ? `\u2190 ${selected.stateName}` : "\u2190 United States"),
       h("div", { className: "breadcrumb" },
         h("button", { onClick: resetMap }, "United States"),
         h("span", null, ">"),
@@ -865,11 +891,11 @@ function ElectionMap({ activeState, setActiveState, activeDistrict, setActiveDis
               fill: stateFill, stroke: "#1e2130", strokeWidth: 0.5,
               opacity: stateOpacity,
               className: `geo state-geo ${loading ? "loading-map" : ""} ${newsActive ? "news-active" : ""} ${newsLit ? "news-lit" : ""}`,
-              onMouseMove: (e) => setHovered({ x: e.clientX, y: e.clientY, title: s.stateName, subtitle: liveStateProb == null ? "Forecast data pending" : `Average House lean - ${ratingFromProb(liveStateProb)}` }),
-              onMouseLeave: () => setHovered(null),
-              onClick: () => selectState(abbr),
-              onWheel: (e) => { if (e.deltaY < 0) selectState(abbr); },
-              onDoubleClick: (e) => { e.stopPropagation(); selectState(abbr); }
+              onMouseMove: interactive ? (e) => setHovered({ x: e.clientX, y: e.clientY, title: s.stateName, subtitle: liveStateProb == null ? "Forecast data pending" : `Average House lean - ${ratingFromProb(liveStateProb)}` }) : undefined,
+              onMouseLeave: interactive ? () => setHovered(null) : undefined,
+              onClick: interactive ? () => selectState(abbr) : undefined,
+              onWheel: interactive ? (e) => { if (e.deltaY < 0) selectState(abbr); } : undefined,
+              onDoubleClick: interactive ? (e) => { e.stopPropagation(); selectState(abbr); } : undefined
             });
           })
         ),
@@ -917,13 +943,13 @@ function ElectionMap({ activeState, setActiveState, activeDistrict, setActiveDis
                 style: { "--district-hover-stroke": `${districtFocusedStroke}` },
                 opacity,
                 className: `geo district-geo ${isFocused ? "district-focused" : ""} ${d.rating === "Toss-Up" ? "pulse-ring" : ""}`,
-                onMouseMove: (e) => setHovered({ x: e.clientX, y: e.clientY, title: d.districtLabel, subtitle: `${displayOfficeholder(d)} - ${liveRating} - D ${Math.round(liveProb * 100)}% / R ${Math.round((1 - liveProb) * 100)}%`, uncertainty: d.liveDistrict?.uncertainty }),
-                onMouseLeave: () => setHovered(null),
-                onClick: (e) => {
+                onMouseMove: interactive ? (e) => setHovered({ x: e.clientX, y: e.clientY, title: d.districtLabel, subtitle: `${displayOfficeholder(d)} - ${liveRating} - D ${Math.round(liveProb * 100)}% / R ${Math.round((1 - liveProb) * 100)}%`, uncertainty: d.liveDistrict?.uncertainty }) : undefined,
+                onMouseLeave: interactive ? () => setHovered(null) : undefined,
+                onClick: interactive ? (e) => {
                   e.stopPropagation();
                   setActiveDistrict(d);
-                },
-                onDoubleClick: (e) => e.stopPropagation()
+                } : undefined,
+                onDoubleClick: interactive ? (e) => e.stopPropagation() : undefined
               })
             );
           }))
@@ -931,7 +957,7 @@ function ElectionMap({ activeState, setActiveState, activeDistrict, setActiveDis
       )
     ),
     h("div", { className: "map-overlay" }, h("h4", null, "TOSS-UP SEATS"), h("span", null, `Senate: ${loading ? "-" : tossupSenate}`), h("span", null, `House: ${loading ? "-" : tossupHouse}`), h("small", null, `Updated: ${new Date().toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}`)),
-    h(Tooltip, { hovered })
+    interactive && h(Tooltip, { hovered })
   );
 }
 
@@ -959,33 +985,32 @@ function App() {
   const [districtNewsCache, setDistrictNewsCache] = useState(() => new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [coldStart, setColdStart] = useState(false);
+  const [warmupSeconds, setWarmupSeconds] = useState(0);
   const [showBrief, setShowBrief] = useState(false);
   const [entered, setEntered] = useState(false);
   const [newsCompleteStates, setNewsCompleteStates] = useState(() => new Set());
-  const labsAudio = useRef(null);
-  const enterAudio = useRef(null);
   const bootState = useRef({ done: false, receivedCore: false });
 
+  function clearMediaSession() {
+    try {
+      if ("mediaSession" in navigator) {
+        navigator.mediaSession.metadata = null;
+        navigator.mediaSession.playbackState = "none";
+        navigator.mediaSession.setActionHandler("play", null);
+        navigator.mediaSession.setActionHandler("pause", null);
+        navigator.mediaSession.setActionHandler("previoustrack", null);
+        navigator.mediaSession.setActionHandler("nexttrack", null);
+        navigator.mediaSession.setActionHandler("seekbackward", null);
+        navigator.mediaSession.setActionHandler("seekforward", null);
+        navigator.mediaSession.setActionHandler("stop", null);
+      }
+    } catch {}
+  }
+
   useEffect(() => {
-    labsAudio.current = new Audio(LABS_AUDIO);
-    enterAudio.current = new Audio(ENTER_AUDIO);
-    labsAudio.current.volume = 0.65;
-    enterAudio.current.volume = 0.78;
-    const tryLabs = () => {
-      labsAudio.current?.play().catch(() => {});
-      window.removeEventListener("pointerdown", tryLabs);
-      window.removeEventListener("keydown", tryLabs);
-    };
-    labsAudio.current.play().catch(() => {
-      window.addEventListener("pointerdown", tryLabs, { once: true });
-      window.addEventListener("keydown", tryLabs, { once: true });
-    });
-    return () => {
-      window.removeEventListener("pointerdown", tryLabs);
-      window.removeEventListener("keydown", tryLabs);
-      labsAudio.current?.pause();
-      enterAudio.current?.pause();
-    };
+    clearMediaSession();
+    return () => clearMediaSession();
   }, []);
 
   useEffect(() => {
@@ -995,6 +1020,7 @@ function App() {
       if (hasCoreData) bootState.current.receivedCore = true;
       if (!bootState.current.done && (bootState.current.receivedCore || hasCoreData)) {
         bootState.current.done = true;
+        setColdStart(false);
         setError(false);
         setLoading(false);
       }
@@ -1034,17 +1060,26 @@ function App() {
 
     loadCore();
 
+    const warmupTimer = setTimeout(() => {
+      if (!cancelled && !bootState.current.receivedCore) setColdStart(true);
+    }, 4000);
+
+    const warmupTicker = setInterval(() => {
+      if (!cancelled && !bootState.current.done) setWarmupSeconds((current) => current + 1);
+    }, 1000);
+
     const loadingWatchdog = setTimeout(() => {
       if (cancelled || bootState.current.done) return;
       bootState.current.done = true;
       setError(!bootState.current.receivedCore);
       setLoading(false);
-    }, 9000);
+      setColdStart(false);
+    }, 75000);
 
     const bootstrapRetry = setInterval(() => {
       if (cancelled || bootState.current.receivedCore) return;
       loadCore();
-    }, 15000);
+    }, 8000);
 
     Promise.all([
       getConflicts(),
@@ -1060,6 +1095,8 @@ function App() {
     });
     return () => {
       cancelled = true;
+      clearTimeout(warmupTimer);
+      clearInterval(warmupTicker);
       clearTimeout(loadingWatchdog);
       clearInterval(bootstrapRetry);
     };
@@ -1070,21 +1107,10 @@ function App() {
   }, []);
 
   function handleEnter() {
-    try {
-      if (labsAudio.current) {
-        labsAudio.current.pause();
-        labsAudio.current.currentTime = 0;
-      }
-      if (enterAudio.current) {
-        enterAudio.current.currentTime = 0;
-        enterAudio.current.play().catch(() => {});
-      } else {
-        new Audio(ENTER_AUDIO).play().catch(() => {});
-      }
-    } catch {}
+    clearMediaSession();
     setTimeout(() => {
       setEntered(true);
-    }, 1250);
+    }, 650);
   }
 
   function selectDistrictFromRow(row) {
@@ -1152,13 +1178,20 @@ function App() {
   React.useEffect(() => { if (!activeState) setFocusedDistrictId(null); }, [activeState]);
   const visibleEvents = (activeDistrict || activeState) ? scopedEvents : events;
   return h("div", { className: "app-shell" },
-    error && h("div", { className: "offline-banner" }, "Backend offline - start the API server at localhost:8000 to load live data"),
+    coldStart && loading && h("div", { className: "warmup-banner" },
+      h("div", { className: "warmup-copy" },
+        h("strong", null, "Waking the backend"),
+        h("span", null, `Render cold start in progress. Live data should appear shortly. ${warmupSeconds}s`)
+      ),
+      h("div", { className: "warmup-progress" }, h("div", { className: "warmup-progress-fill" }))
+    ),
+    error && h("div", { className: "offline-banner" }, "The backend did not wake up in time. It may still be starting on Render."),
     showBrief && morningBrief && h(MorningBriefModal, { brief: morningBrief, marketGaps, onDismiss: () => setShowBrief(false) }),
     h(TopBar, { national, loading }),
     h("div", { className: "workspace" },
       h(LeftPanel, { activeState, activeDistrict, onMoreInfo: () => setMoreInfoOpen(true), chambers, districts, loading, districtDetail, districtNews, events: visibleEvents, marketGaps }),
       h(ElectionMap, { activeState, setActiveState, activeDistrict, setActiveDistrict, geoMode, setGeoMode, hovered: hoveredRegion, setHovered: setHoveredRegion, focusedDistrictId, districts, chambers, loading, newsActiveState: null, newsCompleteStates, entered, stateSummaries }),
-      h(RightPanel, { morningBrief, activeState, activeDistrict, districtDetail, districtNews, districts, roster: houseRoster, focusedDistrictId, onRaceHover: setFocusedDistrictId, onRaceLeave: () => setFocusedDistrictId(activeDistrict?.districtLabel || null), onSelectDistrict: selectDistrictFromRow, events: visibleEvents })
+      h(RightPanel, { morningBrief, activeState, activeDistrict, districtDetail, districtNews, districts, roster: houseRoster, focusedDistrictId, onRaceHover: setFocusedDistrictId, onRaceLeave: () => setFocusedDistrictId(activeDistrict?.districtLabel || null), onSelectDistrict: selectDistrictFromRow, events: visibleEvents, loading })
     ),
     moreInfoOpen && h(PoliticianOverlay, { district: activeDistrict, detail: districtDetail, transparency: districtTransparency, onClose: () => setMoreInfoOpen(false) }),
     h(EnterSplash, { entered, onEnter: handleEnter })
@@ -1166,6 +1199,7 @@ function App() {
 }
 
 createRoot(document.getElementById("root")).render(h(App));
+
 
 
 

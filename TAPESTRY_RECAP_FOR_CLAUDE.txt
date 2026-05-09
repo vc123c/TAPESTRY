@@ -1,6 +1,63 @@
 TAPESTRY RECAP FOR CLAUDE
 Updated: 2026-05-05 afternoon
 
+LATEST FRONTEND STABILITY PASS
+
+Date:
+- 2026-05-09
+
+Files changed in this pass:
+- App.jsx
+- src\api.js
+- tapestry.css
+
+What was fixed:
+- Removed splash entry audio playback entirely because it was starting late and causing weird media-session behavior.
+- Reworked splash helix rendering to use fresh classes:
+  - splash-helix-band
+  - splash-helix-svg
+  - splash-helix-line
+  This was done specifically to stop inheriting the many older conflicting .thread-band rules.
+- Disabled map interactivity until the splash is gone and the app is out of loading state.
+  This stops tooltips from leaking through the splash screen.
+- Added a real Render cold-start warmup banner with an animated loading bar instead of dropping quickly into a fake broken dashboard state.
+- Extended startup patience from 9 seconds to 75 seconds before showing a failure banner.
+- Added repeating bootstrap retries every 8 seconds while the backend is waking.
+- Added cached fallbacks for core API reads:
+  - /api/morning-brief
+  - /api/national
+  - /api/chambers
+  - /api/events
+  - /api/market/gaps
+  - district detail
+  - district news
+- Right panel now shows a warmup skeleton while loading instead of pretending the feed is simply empty.
+- National panel now shows pending text if chamber rows are not present, instead of showing misleading D 0% / R 100% bars.
+- Back button text in the map was normalized to use a proper left arrow via Unicode escape.
+
+Important implementation details:
+- App.jsx now uses:
+  - coldStart state
+  - warmupSeconds state
+  - 4 second delay before showing the warmup banner
+  - 75 second watchdog before showing backend failure
+- EnterSplash still has leave timing, but it is now visual only. No entry sound remains.
+- Tooltip rendering now depends on:
+  - entered
+  - loading
+  through an interactive boolean in ElectionMap.
+
+Validation completed:
+- node --check on a temporary App.check.mjs copy passed
+- node --check src\api.js passed
+- node scripts\build_static.js passed
+
+Bundle from this pass:
+- APP_BUNDLE=/App.177834681316.js
+
+Known remaining risk:
+- tapestry.css still contains many older splash-era rules above the new final override block. The new classes avoid most of that damage, but the clean long-term fix would still be to remove the dead legacy splash CSS entirely in a future pass.
+
 Project root:
 C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us
 
@@ -155,6 +212,26 @@ Final hotfix:
   - keep tagline static and crisp
   - fade the whole splash as one unit on exit instead of blurring letters
   - keep thread bands retracting cleanly during exit
+
+2026-05-09 MEDIA OVERLAY HOTFIX
+
+Problem:
+- TAPESTRY splash audio was competing with YouTube / other media sessions in Windows browser overlays.
+- Result was flickering media controls and ugly switching between active media cards.
+
+Root cause:
+- App.jsx auto-played LABS_AUDIO on load.
+- That made the browser register TAPESTRY as an active media session even before the user clicked into the app.
+
+Fix:
+- Removed autoplay behavior for LABS_AUDIO.
+- Kept only the explicit enter click sound.
+- Added clearMediaSession() in App.jsx to clear browser media-session metadata and handlers.
+- Set the enter sound to preload only and disable remote playback.
+
+Net result expected:
+- TAPESTRY no longer fights YouTube / Spotify / browser media overlays on splash load.
+- No more flickering between media cards caused by the app declaring itself an active player.
 
 
 CURRENT VERIFIED DATA STATE
