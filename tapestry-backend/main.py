@@ -11,9 +11,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.routes import admin, chambers, conflicts, districts, market, national, scandals, states
 from db.connection import ROOT, init_db
 from model.retrainer import TapestryRetrainer
+from scheduler import create_scheduler
 from utils.logging import setup_logging
 
 logger = setup_logging(__name__)
+app_scheduler = None
 
 app = FastAPI(title="TAPESTRY API", version="0.1.0")
 app.add_middleware(
@@ -42,7 +44,16 @@ app.include_router(market.router)
 
 @app.on_event("startup")
 async def startup() -> None:
+    global app_scheduler
     init_db()
+    auto_update_enabled = os.getenv("AUTO_UPDATE_ENABLED", "1").lower() in {"1", "true", "yes", "on"}
+    if auto_update_enabled and app_scheduler is None:
+        try:
+            app_scheduler = create_scheduler()
+            app_scheduler.start()
+            logger.info("Background auto-update scheduler started")
+        except Exception:
+            logger.exception("Background auto-update scheduler failed to start")
     if os.getenv("ENVIRONMENT", "").lower() == "production":
         logger.info("Production environment detected; serving packaged TAPESTRY data without startup refresh")
         return
@@ -53,6 +64,19 @@ async def startup() -> None:
             await TapestryRetrainer().daily_update_async()
         except Exception:
             logger.exception("Startup daily update failed; API will serve any existing data")
+
+
+@app.on_event("shutdown")
+async def shutdown() -> None:
+    global app_scheduler
+    if app_scheduler is not None:
+        try:
+            app_scheduler.shutdown(wait=False)
+            logger.info("Background auto-update scheduler stopped")
+        except Exception:
+            logger.exception("Background auto-update scheduler failed to stop cleanly")
+        finally:
+            app_scheduler = None
 
 
 @app.get("/")

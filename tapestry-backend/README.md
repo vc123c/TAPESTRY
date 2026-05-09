@@ -21,6 +21,37 @@ Production-oriented local backend for the TAPESTRY political intelligence platfo
 11. `.venv\Scripts\python.exe -m uvicorn main:app --port 8000 --reload`
 12. In a separate terminal: `.venv\Scripts\python.exe -m streamlit run admin/admin_app.py --server.port 8502`
 
+## Automatic Updates
+
+When the FastAPI backend is running, TAPESTRY can now refresh itself automatically:
+
+- Every 60 minutes:
+  - local news scrape
+  - race-specific news scrape
+  - source intelligence scrape
+  - Pape escalation scrape
+  - event state backfill
+  - embedding backfill
+  - fast forecast refresh
+- Every night at 3:00 AM Pacific:
+  - full slow update and retrain
+
+Environment variables:
+
+- `AUTO_UPDATE_ENABLED=1`
+- `AUTO_UPDATE_INTERVAL_MINUTES=60`
+- `AUTO_UPDATE_FULL_RETRAIN_ENABLED=1`
+- `AUTO_UPDATE_FULL_RETRAIN_HOUR=3`
+
+If you want the backend to just sit there and keep itself fresh locally, run:
+
+```bat
+cd /d C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend
+.\.venv\Scripts\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+As long as that process stays running, the scheduler stays running too.
+
 ## Notes
 
 - DuckDB lives at `data/tapestry.duckdb`.
@@ -28,6 +59,7 @@ Production-oriented local backend for the TAPESTRY political intelligence platfo
 - `data/morning_brief.json` is written atomically and is the frontend contract.
 - Scrapers are failure-tolerant, but they do not fabricate candidate names, dollar amounts, vote percentages, or bios. Missing data is returned as null or empty.
 - The chamber simulation is vectorized NumPy and seeded with `42`.
+- On Render free tier, background jobs pause when the service spins down from inactivity. Hourly auto-refresh is reliable locally or on an always-on host. On free Render, it resumes when the service wakes back up.
 
 ## Polymarket Key
 

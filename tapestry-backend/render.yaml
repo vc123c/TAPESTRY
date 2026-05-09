@@ -9,3 +9,11 @@ services:
         value: ./data/tapestry_demo.duckdb
       - key: ENVIRONMENT
         value: production
+      - key: AUTO_UPDATE_ENABLED
+        value: "1"
+      - key: AUTO_UPDATE_INTERVAL_MINUTES
+        value: "60"
+      - key: AUTO_UPDATE_FULL_RETRAIN_ENABLED
+        value: "1"
+      - key: AUTO_UPDATE_FULL_RETRAIN_HOUR
+        value: "3"

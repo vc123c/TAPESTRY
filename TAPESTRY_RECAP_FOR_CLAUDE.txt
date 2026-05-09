@@ -1,5 +1,5 @@
 TAPESTRY RECAP FOR CLAUDE
-Updated: 2026-04-26 evening
+Updated: 2026-05-05 afternoon
 
 Project root:
 C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us
@@ -16,6 +16,127 @@ Key local links:
 
 Short version:
 TAPESTRY is a local political intelligence dashboard for 2026 US congressional elections. It has a FastAPI + DuckDB backend, a React single-page frontend at localhost:5173, a Streamlit admin app, and a resumable overnight data pipeline. The system now has real House roster, MIT election results, FEC finance, Census ACS, race articles, source-intelligence articles, ideology corpus embeddings, Polymarket House-control comparison, and a trained district model.
+
+
+AUTOMATIC HOURLY UPDATE SYSTEM
+
+As of 2026-05-05, the backend now supports automatic refreshes while the FastAPI server is running.
+
+Files changed:
+- tapestry-backend\scheduler.py
+- tapestry-backend\main.py
+- tapestry-backend\render.yaml
+- tapestry-backend\README.md
+- DEPLOY.md
+- tapestry-backend\run_auto_update_backend.bat
+
+What it now does:
+- Starts an APScheduler background scheduler when the FastAPI app starts.
+- Runs an hourly refresh job by default every 60 minutes.
+- Runs a nightly full retrain by default at 3:00 AM Pacific.
+- Stops the scheduler cleanly when the FastAPI app shuts down.
+
+Hourly refresh job contents:
+- local news scrape
+- race-specific web scrape with:
+  - RACE_WEB_FORCE=1
+  - RACE_WEB_PVI_THRESHOLD from env or default 20
+- source intelligence scrape
+- Pape escalation scrape
+- backfill event states script
+- embedding backfill
+- TapestryRetrainer().fast_update()
+
+Nightly full retrain contents:
+- TapestryRetrainer().slow_update()
+
+Scheduler configuration env vars:
+- AUTO_UPDATE_ENABLED=1
+- AUTO_UPDATE_INTERVAL_MINUTES=60
+- AUTO_UPDATE_FULL_RETRAIN_ENABLED=1
+- AUTO_UPDATE_FULL_RETRAIN_HOUR=3
+
+How it is wired:
+- main.py imports create_scheduler from scheduler.py.
+- On FastAPI startup:
+  - init_db() still runs
+  - scheduler starts if AUTO_UPDATE_ENABLED is truthy
+  - production still skips startup daily refresh, but scheduler now still starts
+- On FastAPI shutdown:
+  - scheduler.shutdown(wait=False)
+
+Important deployment caveat:
+- This is reliable on a local always-on backend.
+- On Render free tier, the service can spin down when idle.
+- When the service sleeps, scheduled jobs pause.
+- When the service wakes back up, the scheduler resumes.
+- So this is true automatic refresh locally, and best-effort automatic refresh on free Render unless the service is kept awake.
+
+Quick local launcher:
+- tapestry-backend\run_auto_update_backend.bat
+- This starts uvicorn with AUTO_UPDATE_ENABLED=1 and the default hourly/nightly schedule.
+
+Quick local command equivalent:
+- cd /d C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us\tapestry-backend
+- .\.venv\Scripts\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000
+
+Verification completed:
+- Python syntax check passed for:
+  - tapestry-backend\main.py
+  - tapestry-backend\scheduler.py
+- create_scheduler() returns:
+  - hourly_refresh -> interval[1:00:00]
+  - nightly_full_retrain -> cron[hour='3', minute='0']
+
+
+2026-05-08 UI STABILITY FIXES
+
+Files changed:
+- App.jsx
+- tapestry.css
+
+Problem 1:
+- Deployed UI could sit on "LOADING LIVE DATA" with blank pills and a dark uncolored map while waiting too long for the backend to wake up.
+
+Root cause:
+- Initial app boot waited on one bundled startup flow.
+- If Render was slow or cold, the app could remain in loading state for too long before releasing the shell.
+
+Fix:
+- Reworked the initial load in App.jsx to load core resources independently instead of gating the whole screen on a single all-or-nothing wait.
+- Added a startup watchdog:
+  - after 9 seconds, loading is released even if the backend is still slow
+  - if no core data has arrived by then, error/offline state is shown instead of endless skeletons
+- Added bootstrap retry polling every 15 seconds until core data arrives.
+- As soon as any core data arrives, loading is cleared and the app paints.
+
+Core resources now load independently:
+- morning brief
+- chambers
+- national
+- district summaries
+- state summaries
+- market gaps
+
+Problem 2:
+- Splash screen TAPESTRY word could look blurred and smeared in idle state.
+
+Root cause:
+- Old hover/focus styling still blurred and shifted the splash letters when the pointer rested over the word.
+- The splash CSS also had many old layered overrides from prior experiments.
+
+Fix:
+- Added final splash overrides at the end of tapestry.css to force:
+  - no hover blur
+  - no hover translation
+  - no focus blur
+  - no backdrop/filter smear on the splash word or tagline
+- Also froze the idle thread SVG transform so the steady-state splash is visually stable.
+
+Net result expected:
+- Startup no longer hangs in loading for an excessive time.
+- If the API is still unavailable, the user gets a visible offline/error state instead of a permanent skeleton shell.
+- Splash TAPESTRY word remains crisp while waiting for click.
 
 
 CURRENT VERIFIED DATA STATE

@@ -111,3 +111,22 @@ h3, h4, .panel-section h3 { font-size: var(--t-text-xs); margin-bottom: 6px; }
 .enter-splash:not(.leaving) .thread-band.top,.enter-splash:not(.leaving) .thread-band.bottom{animation:none!important;clip-path:inset(0 0 0 0)!important;opacity:.96!important}
 .enter-splash:not(.leaving) .thread-line{stroke-dasharray:none!important;stroke-dashoffset:0!important;animation:none!important}
 @keyframes threadTensionStable{0%,100%{transform:scaleX(1) scaleY(1.08)}42%,60%{transform:scaleX(1) scaleY(.58)}}
+
+/* Final splash fixes */
+.enter-splash .enter-word:hover span,
+.enter-splash .enter-word:focus span,
+.enter-splash .enter-word:focus-visible span{
+  transform:none!important;
+  opacity:1!important;
+  filter:none!important;
+}
+.enter-splash .enter-word span,
+.enter-splash .enter-word,
+.enter-splash p{
+  filter:none!important;
+  backdrop-filter:none!important;
+}
+.enter-splash:not(.leaving) .thread-band svg{
+  animation:none!important;
+  transform:none!important;
+}

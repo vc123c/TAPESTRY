@@ -29,6 +29,10 @@ Latest local export:
 5. Add environment variables:
    - `DATABASE_PATH=./data/tapestry_demo.duckdb`
    - `ENVIRONMENT=production`
+   - `AUTO_UPDATE_ENABLED=1`
+   - `AUTO_UPDATE_INTERVAL_MINUTES=60`
+   - `AUTO_UPDATE_FULL_RETRAIN_ENABLED=1`
+   - `AUTO_UPDATE_FULL_RETRAIN_HOUR=3`
 6. Database option for submission:
    - Simplest: commit `tapestry-backend/data/tapestry_demo.duckdb`.
    - If GitHub rejects the file, use Git LFS:
@@ -67,6 +71,7 @@ If this URL returns `404 Not Found` for `/`, `/docs`, or `/api/chambers`, the se
 After changing these settings, click **Manual Deploy** -> **Clear build cache & deploy**.
 
 Render free tier may spin down after inactivity. First request after spin-down can take around 30 seconds.
+Because of that spin-down behavior, the new hourly auto-update scheduler is perfect for local always-on use and acceptable for demos on Render, but it is not a true always-on hourly cloud worker unless the service is kept awake.
 
 ## Step 3: Configure Frontend API URL
 

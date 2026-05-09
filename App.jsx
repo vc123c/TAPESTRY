@@ -964,6 +964,7 @@ function App() {
   const [newsCompleteStates, setNewsCompleteStates] = useState(() => new Set());
   const labsAudio = useRef(null);
   const enterAudio = useRef(null);
+  const bootState = useRef({ done: false, receivedCore: false });
 
   useEffect(() => {
     labsAudio.current = new Audio(LABS_AUDIO);
@@ -989,29 +990,61 @@ function App() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([
-      getMorningBrief(),
-      getChambers(),
-      getNational(),
-      getDistrictSummaries(),
-      getStates(),
-      getMarketGaps()
-    ]).then(([brief, chamberRows, nationalRows, districtRows, stateRows, marketGapRows]) => {
+    const markReady = (hasCoreData = false) => {
       if (cancelled) return;
-      setMorningBrief(brief);
-      setChambers(chamberRows || []);
-      setNational(nationalRows);
-      setDistricts(districtRows || []);
-      setStateSummaries(stateRows || []);
-      setMarketGaps(marketGapRows);
-      setShowBrief(Boolean(brief));
-      setError(!brief && !chamberRows && !nationalRows && !districtRows);
+      if (hasCoreData) bootState.current.receivedCore = true;
+      if (!bootState.current.done && (bootState.current.receivedCore || hasCoreData)) {
+        bootState.current.done = true;
+        setError(false);
+        setLoading(false);
+      }
+    };
+
+    const loadCore = () => {
+      getMorningBrief().then((brief) => {
+        if (cancelled || !brief) return;
+        setMorningBrief(brief);
+        setShowBrief(Boolean(brief));
+      });
+      getChambers().then((rows) => {
+        if (cancelled || !rows) return;
+        setChambers(rows || []);
+        markReady(Array.isArray(rows) && rows.length > 0);
+      });
+      getNational().then((rows) => {
+        if (cancelled || !rows) return;
+        setNational(rows);
+        markReady(Boolean(rows));
+      });
+      getDistrictSummaries().then((rows) => {
+        if (cancelled || !rows) return;
+        setDistricts(rows || []);
+        markReady(Array.isArray(rows) && rows.length > 0);
+      });
+      getStates().then((rows) => {
+        if (cancelled || !rows) return;
+        setStateSummaries(rows || []);
+        markReady(Array.isArray(rows) && rows.length > 0);
+      });
+      getMarketGaps().then((rows) => {
+        if (cancelled) return;
+        if (rows) setMarketGaps(rows);
+      });
+    };
+
+    loadCore();
+
+    const loadingWatchdog = setTimeout(() => {
+      if (cancelled || bootState.current.done) return;
+      bootState.current.done = true;
+      setError(!bootState.current.receivedCore);
       setLoading(false);
-    }).catch(() => {
-      if (cancelled) return;
-      setError(true);
-      setLoading(false);
-    });
+    }, 9000);
+
+    const bootstrapRetry = setInterval(() => {
+      if (cancelled || bootState.current.receivedCore) return;
+      loadCore();
+    }, 15000);
 
     Promise.all([
       getConflicts(),
@@ -1025,7 +1058,11 @@ function App() {
         setNewsCompleteStates(new Set(Object.entries(readiness).filter(([, count]) => Number(count) >= INFO_READY_THRESHOLD).map(([state]) => state)));
       }
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      clearTimeout(loadingWatchdog);
+      clearInterval(bootstrapRetry);
+    };
   }, []);
 
   useEffect(() => {
