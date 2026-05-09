@@ -58,6 +58,34 @@ Bundle from this pass:
 Known remaining risk:
 - tapestry.css still contains many older splash-era rules above the new final override block. The new classes avoid most of that damage, but the clean long-term fix would still be to remove the dead legacy splash CSS entirely in a future pass.
 
+FOLLOW-UP PUBLIC TRUST PASS
+
+Date:
+- 2026-05-09 later pass
+
+Additional changes:
+- Added rotating warmup fun facts during backend cold start.
+- Added provenance chips in the UI so users can more easily tell:
+  - model output
+  - market cross-check
+  - article-derived signal
+- Added a warmup fact line directly in the top loading banner.
+- Added warmup fact cards inside loading panels.
+- Hid legacy .thread-band nodes completely in CSS so the new splash helix classes are the only visible helix implementation.
+- Updated README with public operations notes about:
+  - Vercel frontend
+  - Render backend
+  - free-tier cold starts
+  - local hourly refresh behavior
+
+Bundle from this pass:
+- APP_BUNDLE=/App.177834726888.js
+
+Validation completed again:
+- temporary App.check.mjs syntax check passed
+- src\api.js syntax check passed
+- node scripts\build_static.js passed
+
 Project root:
 C:\Users\pdc\Documents\Codex\2026-04-24\build-a-full-screen-interactive-us
 

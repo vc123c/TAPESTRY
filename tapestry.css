@@ -295,3 +295,51 @@ h3, h4, .panel-section h3 { font-size: var(--t-text-xs); margin-bottom: 6px; }
 .map-panel.locked .tooltip{
   pointer-events:none!important;
 }
+.thread-band{display:none!important}
+.provenance-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:0 0 10px;
+}
+.provenance-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  background:#10131c;
+  border:1px solid #1e2130;
+  border-radius:999px;
+  padding:3px 7px;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.04em;
+}
+.warmup-fact-card{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin:10px 0 4px;
+  padding:9px 10px;
+  background:rgba(255,255,255,.03);
+  border:1px solid #1e2130;
+  border-radius:4px;
+}
+.warmup-fact-card strong,
+.warmup-inline-fact strong{
+  color:#e2e8f0;
+  font-size:11px;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.warmup-fact-card span,
+.warmup-inline-fact span{
+  color:#94a3b8;
+  font-size:12px;
+  line-height:1.45;
+}
+.warmup-inline-fact{
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+}

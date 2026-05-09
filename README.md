@@ -111,6 +111,15 @@ cd tapestry-backend
 
 ---
 
+## Operations Notes
+
+- The public demo frontend is deployed on Vercel.
+- The public API is deployed on Render.
+- Render free tier can take a short time to wake after inactivity. The frontend now shows a warmup state and retries core API calls while the backend starts.
+- Local backend runs can refresh data hourly while the server stays up. Free Render sleep behavior means cloud-side hourly refreshes are best-effort unless the hosting tier changes.
+
+---
+
 ## Guardrails
 
 TAPESTRY avoids county proxy rendering for congressional districts, uses Census CD118 district boundaries, normalizes district IDs across data sources, and validates walk-forward features so same-year election outcomes do not leak into model training.

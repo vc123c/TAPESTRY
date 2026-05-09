@@ -31,6 +31,14 @@ const DISTRICTS_URL = "https://cdn.jsdelivr.net/gh/civic-interconnect/civic-data
 const ELECTION_DAY = new Date("2026-11-03T00:00:00");
 const ACCENT = "#7c3aed";
 const INFO_READY_THRESHOLD = 3;
+const WARMUP_FACTS = [
+  "The House has 435 voting seats, so 218 controls the chamber.",
+  "Nebraska and Maine split presidential electors, but House races there are still single-district fights.",
+  "A one-point national swing does not move every district equally. That is why the chamber forecast uses simulation.",
+  "DuckDB is doing the heavy lifting for TAPESTRY's local analytics and forecast tables.",
+  "Polymarket is shown as a market check, not as the source of the model probability.",
+  "Some safe seats barely move in a wave year. Competitive seats move much more with the national environment."
+];
 
 const ratingColors = {
   "Solid D": "#1d4ed8",
@@ -287,10 +295,14 @@ function SkeletonPanel() {
   );
 }
 
-function WarmupPanel() {
+function WarmupPanel({ fact }) {
   return h("div", null,
     h("h2", null, "WAKING THE BACKEND"),
     h("p", { className: "muted tight" }, "Render is spinning the API up. Live forecasts and news should appear shortly."),
+    fact && h("div", { className: "warmup-fact-card" },
+      h("strong", null, "While you wait"),
+      h("span", null, fact)
+    ),
     [1, 2, 3, 4].map((i) => h("div", { className: "skeleton-line", key: i }))
   );
 }
@@ -328,7 +340,14 @@ function chamberMarketGap(marketGaps, chamber) {
   return (marketGaps?.chamber_gaps || []).find((gap) => gap.chamber === chamber);
 }
 
-function NationalPanel({ chambers, districts, loading, marketGaps }) {
+function ProvenanceRow({ items = [] }) {
+  if (!items.length) return null;
+  return h("div", { className: "provenance-row" },
+    items.map((item) => h("span", { className: "provenance-chip", key: item.label }, `${item.label}: ${item.value}`))
+  );
+}
+
+function NationalPanel({ chambers, districts, loading, marketGaps, national }) {
   if (loading) return h(SkeletonPanel);
   const senate = chamberByName(chambers, "senate");
   const house = chamberByName(chambers, "house");
@@ -354,10 +373,18 @@ function NationalPanel({ chambers, districts, loading, marketGaps }) {
   return h("div", null,
     h("h2", null, "NATIONAL OVERVIEW"),
     h(Section, { title: "CHAMBER CONTROL" },
+      h(ProvenanceRow, { items: [
+        { label: "MODEL", value: "TAPESTRY simulation" },
+        { label: "INPUTS", value: "approval, ballot, district factors" }
+      ] }),
       h("div", { className: "control-row" }, h("b", null, "SENATE"), h(ProbabilityBar, { dPct: senateD, rPct: 100 - senateD })),
       h("div", { className: "control-row" }, h("b", null, "HOUSE"), h(ProbabilityBar, { dPct: houseD, rPct: 100 - houseD }))
     ),
     h(Section, { title: "MARKET PRICES" },
+      h(ProvenanceRow, { items: [
+        { label: "MARKET", value: "Polymarket and Kalshi" },
+        { label: "LAST LIVE", value: national?.factor_date || "pending" }
+      ] }),
       h("div", { className: "market-label" }, "Prediction markets - live where available"),
       h("div", { className: "market-row" }, h("span", null, "Senate Control - D"), h("b", null, senate?.kalshi_price == null ? "-" : `$${Number(senate.kalshi_price).toFixed(2)}`)),
       h("div", { className: "market-row" }, h("span", null, "House Control - D"), h("b", null, house?.kalshi_price == null ? "-" : `$${Number(house.kalshi_price).toFixed(2)}`)),
@@ -369,7 +396,12 @@ function NationalPanel({ chambers, districts, loading, marketGaps }) {
       housePolyGap > 10 && h("p", { className: housePolyGap > 20 ? "gap-alert" : "muted tight" }, `House market gap: TAPESTRY ${fmtPct(house?.d_control_probability)} vs Polymarket ${fmtPct(house?.polymarket_price)}`),
       h("small", null, `Updated: ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`)
     ),
-    h(Section, { title: "TOP COMPETITIVE RACES" }, close.length ? close.map((d) => {
+    h(Section, { title: "TOP COMPETITIVE RACES" },
+      h(ProvenanceRow, { items: [
+        { label: "MODEL", value: "closest district forecasts" },
+        { label: "UNCERTAINTY", value: "shown for tight races" }
+      ] }),
+      close.length ? close.map((d) => {
       const [dp, rp] = probBarRace(d);
       const showUncertainty = Math.abs(Number(d.projected_margin ?? 999)) < 8 && d.uncertainty !== null && d.uncertainty !== undefined;
       return h("div", { className: "race-card", key: d.district_id },
@@ -436,6 +468,10 @@ function DistrictPanel({ state, district, detail, newsState, events, onMoreInfo 
     h("h2", null, `${districtId} - ${incumbentName}`),
     h("p", { className: "subhead" }, verifiedOfficeholder ? `${live.incumbent_party || district.party || "Party pending"} - ${state?.stateName || district.homeBase || districtId}${incumbentStatus ? " - open-seat watch" : ""}` : "Roster not yet available"),
     h(Section, { title: "RACE STATUS" },
+      h(ProvenanceRow, { items: [
+        { label: "MODEL", value: "district forecast" },
+        { label: "MARKET", value: live.kalshi_price == null ? "none" : "Kalshi cross-check" }
+      ] }),
       districtStatement && h("p", { className: "race-statement" }, districtStatement),
       h("div", { className: `badge ${clsRating(liveRating)}` }, liveRating),
       h(ProbabilityBar, { dPct: dLivePct, rPct: rLivePct, large: true }),
@@ -462,6 +498,10 @@ function DistrictPanel({ state, district, detail, newsState, events, onMoreInfo 
       h("div", { className: "challenger-row" }, h("span", null, "Major/current challengers"), h("b", null, challengers.length ? challengers.map((c) => `${c.candidate_name}${c.party ? ` (${c.party})` : ""}`).slice(0, 4).join(", ") : "No major challenger declared"))
     ),
     (raceIntel.article_count || raceIntel.open_seat_articles?.length || raceIntel.top_issues?.length) && h(Section, { title: "ARTICLE-DERIVED INTEL" },
+      h(ProvenanceRow, { items: [
+        { label: "ARTICLES", value: `${raceIntel.article_count || 0} scanned` },
+        { label: "TYPE", value: "news-derived signal" }
+      ] }),
       h("div", { className: "detail-row" }, h("span", null, "Articles read"), h("b", null, raceIntel.article_count || 0)),
       raceIntel.top_issues?.length > 0 && h("div", { className: "detail-row" }, h("span", null, "Top issues"), h("b", null, raceIntel.top_issues.map((i) => i.topic).join(", "))),
       Object.keys(raceIntel.challenger_mentions || {}).length > 0 && h("div", { className: "detail-row" }, h("span", null, "Challenger mentions"), h("b", null, Object.entries(raceIntel.challenger_mentions).map(([name, count]) => `${name}: ${count}`).join(", "))),
@@ -508,10 +548,10 @@ function DistrictPanel({ state, district, detail, newsState, events, onMoreInfo 
   );
 }
 
-function LeftPanel({ activeState, activeDistrict, onMoreInfo, chambers, districts, loading, districtDetail, districtNews, events, marketGaps }) {
+function LeftPanel({ activeState, activeDistrict, onMoreInfo, chambers, districts, loading, districtDetail, districtNews, events, marketGaps, national }) {
   const state = activeState ? stateData[activeState] : null;
   return h("aside", { className: "left panel" },
-    activeDistrict ? h(DistrictPanel, { state, district: activeDistrict, detail: districtDetail, newsState: districtNews, events, onMoreInfo }) : state ? h(StatePanel, { state, districts }) : h(NationalPanel, { chambers, districts, loading, marketGaps })
+    activeDistrict ? h(DistrictPanel, { state, district: activeDistrict, detail: districtDetail, newsState: districtNews, events, onMoreInfo }) : state ? h(StatePanel, { state, districts }) : h(NationalPanel, { chambers, districts, loading, marketGaps, national })
   );
 }
 
@@ -559,11 +599,11 @@ function StateRaceList({ activeState, districts, roster, focusedDistrictId, onRa
   );
 }
 
-function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail, districtNews, districts, roster, focusedDistrictId, onRaceHover, onRaceLeave, onSelectDistrict, events, onEventPulse, loading }) {
+function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail, districtNews, districts, roster, focusedDistrictId, onRaceHover, onRaceLeave, onSelectDistrict, events, onEventPulse, loading, warmupFact }) {
   const [infoTab, setInfoTab] = useState("dashboard");
   if (loading) {
     return h("aside", { className: "right panel" },
-      h("div", null, h(WarmupPanel)),
+      h("div", null, h(WarmupPanel, { fact: warmupFact })),
       h("div", null,
         h(Section, { title: "RATINGS SCALE" },
           Object.entries(ratingColors).map(([label, color]) =>
@@ -616,6 +656,10 @@ function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail,
       ) : h(React.Fragment, null,
       h(Section, { title: activeDistrict ? "RACE INTELLIGENCE" : "NATIONAL INTELLIGENCE" },
         activeDistrict ? h("div", { className: "intel-card" },
+          h(ProvenanceRow, { items: [
+            { label: "MODEL", value: "forecast and uncertainty" },
+            { label: "NEWS", value: "article-derived signal" }
+          ] }),
           h("h2", null, activeDistrict.districtLabel),
           h("div", { className: "detail-row" }, h("span", null, "Incumbent"), h("b", null, verifiedOfficeholder ? displayOfficeholder(activeDistrict) : "Roster not yet available")),
           h("div", { className: "detail-row" }, h("span", null, "2026 status"), h("b", null, raceIntel.status_text || districtDetail?.statement || "Data pending")),
@@ -626,6 +670,10 @@ function RightPanel({ morningBrief, activeState, activeDistrict, districtDetail,
           raceIntel.top_issues?.length > 0 && h("div", { className: "detail-row" }, h("span", null, "Article issues"), h("b", null, raceIntel.top_issues.map((i) => i.topic).slice(0, 3).join(", "))),
           h("div", { className: "detail-row" }, h("span", null, "News loaded"), h("b", null, `${newsCount} items`))
         ) : h("div", { className: "intel-card" },
+          h(ProvenanceRow, { items: [
+            { label: "MAP", value: "district forecast layer" },
+            { label: "FEED", value: "scoped events and news" }
+          ] }),
           h("h2", null, activeState ? `${stateData[activeState]?.stateName || activeState} RACES` : "2026 ELECTIONS"),
           h("p", { className: "muted tight" }, activeState ? "Hover a race to highlight it on the map. Click a row to open the district profile." : "Click a state to list its races, then use the race list and map together."),
           activeState
@@ -987,6 +1035,7 @@ function App() {
   const [error, setError] = useState(false);
   const [coldStart, setColdStart] = useState(false);
   const [warmupSeconds, setWarmupSeconds] = useState(0);
+  const [warmupFactIndex, setWarmupFactIndex] = useState(0);
   const [showBrief, setShowBrief] = useState(false);
   const [entered, setEntered] = useState(false);
   const [newsCompleteStates, setNewsCompleteStates] = useState(() => new Set());
@@ -1012,6 +1061,14 @@ function App() {
     clearMediaSession();
     return () => clearMediaSession();
   }, []);
+
+  useEffect(() => {
+    if (!loading) return;
+    const id = setInterval(() => {
+      setWarmupFactIndex((current) => (current + 1) % WARMUP_FACTS.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [loading]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1177,21 +1234,23 @@ function App() {
   React.useEffect(() => { setMoreInfoOpen(false); }, [activeDistrict, activeState]);
   React.useEffect(() => { if (!activeState) setFocusedDistrictId(null); }, [activeState]);
   const visibleEvents = (activeDistrict || activeState) ? scopedEvents : events;
+  const warmupFact = WARMUP_FACTS[warmupFactIndex % WARMUP_FACTS.length];
   return h("div", { className: "app-shell" },
     coldStart && loading && h("div", { className: "warmup-banner" },
       h("div", { className: "warmup-copy" },
         h("strong", null, "Waking the backend"),
         h("span", null, `Render cold start in progress. Live data should appear shortly. ${warmupSeconds}s`)
       ),
-      h("div", { className: "warmup-progress" }, h("div", { className: "warmup-progress-fill" }))
+      h("div", { className: "warmup-progress" }, h("div", { className: "warmup-progress-fill" })),
+      h("div", { className: "warmup-inline-fact" }, h("strong", null, "Fun fact:"), h("span", null, warmupFact))
     ),
     error && h("div", { className: "offline-banner" }, "The backend did not wake up in time. It may still be starting on Render."),
     showBrief && morningBrief && h(MorningBriefModal, { brief: morningBrief, marketGaps, onDismiss: () => setShowBrief(false) }),
     h(TopBar, { national, loading }),
     h("div", { className: "workspace" },
-      h(LeftPanel, { activeState, activeDistrict, onMoreInfo: () => setMoreInfoOpen(true), chambers, districts, loading, districtDetail, districtNews, events: visibleEvents, marketGaps }),
+      h(LeftPanel, { activeState, activeDistrict, onMoreInfo: () => setMoreInfoOpen(true), chambers, districts, loading, districtDetail, districtNews, events: visibleEvents, marketGaps, national }),
       h(ElectionMap, { activeState, setActiveState, activeDistrict, setActiveDistrict, geoMode, setGeoMode, hovered: hoveredRegion, setHovered: setHoveredRegion, focusedDistrictId, districts, chambers, loading, newsActiveState: null, newsCompleteStates, entered, stateSummaries }),
-      h(RightPanel, { morningBrief, activeState, activeDistrict, districtDetail, districtNews, districts, roster: houseRoster, focusedDistrictId, onRaceHover: setFocusedDistrictId, onRaceLeave: () => setFocusedDistrictId(activeDistrict?.districtLabel || null), onSelectDistrict: selectDistrictFromRow, events: visibleEvents, loading })
+      h(RightPanel, { morningBrief, activeState, activeDistrict, districtDetail, districtNews, districts, roster: houseRoster, focusedDistrictId, onRaceHover: setFocusedDistrictId, onRaceLeave: () => setFocusedDistrictId(activeDistrict?.districtLabel || null), onSelectDistrict: selectDistrictFromRow, events: visibleEvents, loading, warmupFact })
     ),
     moreInfoOpen && h(PoliticianOverlay, { district: activeDistrict, detail: districtDetail, transparency: districtTransparency, onClose: () => setMoreInfoOpen(false) }),
     h(EnterSplash, { entered, onEnter: handleEnter })
