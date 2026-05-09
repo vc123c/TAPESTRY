@@ -130,3 +130,44 @@ h3, h4, .panel-section h3 { font-size: var(--t-text-xs); margin-bottom: 6px; }
   animation:none!important;
   transform:none!important;
 }
+.enter-splash .enter-word,
+.enter-splash .enter-word span{
+  animation:none!important;
+  transition:none!important;
+  transform:none!important;
+  opacity:1!important;
+  filter:none!important;
+}
+.enter-splash .enter-word:before,
+.enter-splash .enter-word span:after{
+  display:none!important;
+}
+.enter-splash p{
+  animation:none!important;
+  opacity:1!important;
+  transform:none!important;
+}
+.enter-splash.leaving{
+  animation:splashFadeFinal 900ms ease forwards!important;
+}
+.enter-splash.leaving .enter-word,
+.enter-splash.leaving .enter-word span,
+.enter-splash.leaving p{
+  animation:none!important;
+  transition:none!important;
+  transform:none!important;
+  opacity:1!important;
+  filter:none!important;
+}
+.enter-splash.leaving .thread-band.top,
+.enter-splash.leaving .thread-band.bottom{
+  animation:threadRetractSmooth 900ms cubic-bezier(.22,1,.36,1) forwards!important;
+}
+.enter-splash.leaving .thread-band svg{
+  animation:none!important;
+  transform:none!important;
+}
+@keyframes splashFadeFinal{
+  0%,72%{opacity:1}
+  100%{opacity:0;pointer-events:none}
+}

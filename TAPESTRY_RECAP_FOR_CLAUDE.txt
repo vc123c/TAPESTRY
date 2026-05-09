@@ -138,6 +138,24 @@ Net result expected:
 - If the API is still unavailable, the user gets a visible offline/error state instead of a permanent skeleton shell.
 - Splash TAPESTRY word remains crisp while waiting for click.
 
+2026-05-08 FOLLOW-UP SPLASH HOTFIX
+
+Problem:
+- The deployed splash still showed a blurred TAPESTRY word even after the first stability pass.
+
+Cause:
+- Older splash letter animation rules were still active in deployed CSS states.
+- The word could still inherit blur/transform behavior from prior layers.
+
+Final hotfix:
+- Added a hard override at the end of tapestry.css:
+  - disable all enter-word span animation
+  - disable hover/focus transforms
+  - disable pseudo-element overlays on the splash word
+  - keep tagline static and crisp
+  - fade the whole splash as one unit on exit instead of blurring letters
+  - keep thread bands retracting cleanly during exit
+
 
 CURRENT VERIFIED DATA STATE
 
